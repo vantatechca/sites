@@ -3,11 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import {
   PanelLeftClose,
   PanelLeft,
-  LogOut,
   User,
   Hammer,
 } from "lucide-react";
@@ -18,7 +16,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -161,14 +158,6 @@ export function Sidebar({ user }: SidebarProps) {
                 <User className="h-4 w-4" />
                 Profile
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              variant="destructive"
-            >
-              <LogOut className="h-4 w-4" />
-              Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

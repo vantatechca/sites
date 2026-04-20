@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PORTAL_NAV_ITEMS } from "@/lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -111,14 +108,6 @@ export function PortalHeader({
               <Link href="/portal/settings" className="flex w-full">
                 Account Settings
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => signOut({ callbackUrl: "/portal/login" })}
-              variant="destructive"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
