@@ -41,7 +41,6 @@ export default function ChatPage() {
           content: "Hi! Welcome to your project. We're excited to get started on your new Shopify store.",
           senderId: "usr_1",
           senderRole: "agency" as const,
-          senderName: "Alex Rivera",
           createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
         },
         {
@@ -56,7 +55,6 @@ export default function ChatPage() {
           content: "Absolutely! We're working on the homepage mockup right now. I'll share the first draft by end of this week.",
           senderId: "usr_1",
           senderRole: "agency" as const,
-          senderName: "Alex Rivera",
           createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
         },
       ]);
