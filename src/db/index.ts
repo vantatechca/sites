@@ -24,7 +24,7 @@ function getDb() {
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(_, prop) {
     const instance = getDb();
-    const value = (instance as Record<string | symbol, unknown>)[prop];
+    const value = (instance as unknown as Record<string | symbol, unknown>)[prop];
     if (typeof value === "function") {
       return value.bind(instance);
     }

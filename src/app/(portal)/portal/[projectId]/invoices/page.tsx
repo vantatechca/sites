@@ -157,8 +157,8 @@ export default function InvoicesPage() {
             currency: "USD",
             description: "Project kickoff & discovery phase",
             lineItems: [
-              { description: "Discovery & requirements gathering", quantity: 1, unitPrice: 2000, amount: 2000 },
-              { description: "Project setup & configuration", quantity: 1, unitPrice: 1000, amount: 1000 },
+              { description: "Discovery & requirements gathering", quantity: 1, unitPrice: 2000, total: 2000 },
+              { description: "Project setup & configuration", quantity: 1, unitPrice: 1000, total: 1000 },
             ],
             dueDate: new Date(Date.now() - 20 * 86400000).toISOString(),
             sentAt: new Date(Date.now() - 30 * 86400000).toISOString(),
@@ -175,8 +175,8 @@ export default function InvoicesPage() {
             currency: "USD",
             description: "Design phase - homepage & product pages",
             lineItems: [
-              { description: "Homepage design & mockups", quantity: 1, unitPrice: 2500, amount: 2500 },
-              { description: "Product page templates", quantity: 1, unitPrice: 2000, amount: 2000 },
+              { description: "Homepage design & mockups", quantity: 1, unitPrice: 2500, total: 2500 },
+              { description: "Product page templates", quantity: 1, unitPrice: 2000, total: 2000 },
             ],
             dueDate: new Date(Date.now() + 10 * 86400000).toISOString(),
             sentAt: new Date(Date.now() - 5 * 86400000).toISOString(),
@@ -193,8 +193,8 @@ export default function InvoicesPage() {
             currency: "USD",
             description: "Development phase",
             lineItems: [
-              { description: "Theme development", quantity: 1, unitPrice: 3000, amount: 3000 },
-              { description: "App integrations", quantity: 1, unitPrice: 1500, amount: 1500 },
+              { description: "Theme development", quantity: 1, unitPrice: 3000, total: 3000 },
+              { description: "App integrations", quantity: 1, unitPrice: 1500, total: 1500 },
             ],
             dueDate: new Date(Date.now() + 30 * 86400000).toISOString(),
             sentAt: null,
