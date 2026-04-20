@@ -77,7 +77,7 @@ export function PortalHeader({
 
         {/* Center: Navigation */}
         <nav className="hidden items-center gap-1 md:flex">
-          {PORTAL_NAV_ITEMS.map((item) => {
+          {PORTAL_NAV_ITEMS.filter((item) => projectId || item.href === "/portal").map((item) => {
             const href = buildHref(item.href);
             const active = isActive(href);
             const Icon = item.icon;
@@ -115,10 +115,10 @@ export function PortalHeader({
             </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8}>
-            <DropdownMenuItem>
-              <Link href="/portal/settings" className="flex w-full">
+            <DropdownMenuItem disabled>
+              <span className="flex w-full text-gray-400">
                 Account Settings
-              </Link>
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
