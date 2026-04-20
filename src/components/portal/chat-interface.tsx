@@ -4,7 +4,13 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Paperclip, MessageCircle, Pencil, Trash2, Check, X } from "lucide-react";
+import { Send, Paperclip, MessageCircle, Pencil, Trash2, Check, X, CornerUpLeft } from "lucide-react";
+
+export interface ReplyReference {
+  id: string;
+  content: string;
+  senderLabel: string;
+}
 
 export interface ChatMessage {
   id: string;
@@ -13,12 +19,13 @@ export interface ChatMessage {
   senderRole: "client" | "agency";
   createdAt: string;
   isAiGenerated?: boolean;
+  replyTo?: ReplyReference;
 }
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
   currentUserId: string;
-  onSendMessage: (content: string) => Promise<void>;
+  onSendMessage: (content: string, replyTo?: ReplyReference) => Promise<void>;
   onEditMessage?: (id: string, newContent: string) => Promise<void> | void;
   onDeleteMessage?: (id: string) => Promise<void> | void;
   onAttachFile?: () => void;
@@ -77,8 +84,19 @@ export function ChatInterface({
   const [isSending, setIsSending] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [replyingTo, setReplyingTo] = useState<ReplyReference | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleStartReply = (msg: ChatMessage) => {
+    const senderLabel = msg.senderId === currentUserId ? "You" : "Your Team";
+    setReplyingTo({ id: msg.id, content: msg.content, senderLabel });
+    inputRef.current?.focus();
+  };
+
+  const handleCancelReply = () => {
+    setReplyingTo(null);
+  };
 
   const handleStartEdit = (msg: ChatMessage) => {
     setEditingId(msg.id);
@@ -119,13 +137,16 @@ export function ChatInterface({
     const content = inputValue.trim();
     if (!content || isSending) return;
 
+    const currentReply = replyingTo;
     setIsSending(true);
     setInputValue("");
+    setReplyingTo(null);
 
     try {
-      await onSendMessage(content);
+      await onSendMessage(content, currentReply ?? undefined);
     } catch {
       setInputValue(content);
+      setReplyingTo(currentReply);
     } finally {
       setIsSending(false);
       inputRef.current?.focus();
@@ -203,9 +224,17 @@ export function ChatInterface({
                           </span>
                         )}
                         <div className={cn("flex items-center gap-2", isClient ? "flex-row" : "flex-row-reverse")}>
-                          {isClient && !isEditing && (onEditMessage || onDeleteMessage) && (
+                          {!isEditing && (
                             <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                              {onEditMessage && (
+                              <button
+                                type="button"
+                                onClick={() => handleStartReply(msg)}
+                                className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                                aria-label="Reply to message"
+                              >
+                                <CornerUpLeft className="h-3 w-3" />
+                              </button>
+                              {isClient && onEditMessage && (
                                 <button
                                   type="button"
                                   onClick={() => handleStartEdit(msg)}
@@ -215,7 +244,7 @@ export function ChatInterface({
                                   <Pencil className="h-3 w-3" />
                                 </button>
                               )}
-                              {onDeleteMessage && (
+                              {isClient && onDeleteMessage && (
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(msg.id)}
@@ -270,9 +299,28 @@ export function ChatInterface({
                                 </div>
                               </div>
                             ) : (
-                              <p className="whitespace-pre-wrap break-words">
-                                {msg.content}
-                              </p>
+                              <>
+                                {msg.replyTo && (
+                                  <div
+                                    className={cn(
+                                      "mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px]",
+                                      isClient
+                                        ? "border-white/50 bg-white/10 text-white/80"
+                                        : "border-gray-400 bg-gray-200/50 text-gray-600"
+                                    )}
+                                  >
+                                    <p className="font-semibold">
+                                      {msg.replyTo.senderLabel}
+                                    </p>
+                                    <p className="line-clamp-2 opacity-80">
+                                      {msg.replyTo.content}
+                                    </p>
+                                  </div>
+                                )}
+                                <p className="whitespace-pre-wrap break-words">
+                                  {msg.content}
+                                </p>
+                              </>
                             )}
                           </div>
                         </div>
@@ -309,6 +357,27 @@ export function ChatInterface({
 
       {/* Input area */}
       <div className="border-t border-gray-100 bg-gray-50/50 p-3 sm:p-4">
+        {replyingTo && (
+          <div className="mb-2 flex items-start gap-2 rounded-lg border-l-2 border-[var(--portal-primary,#4F46E5)] bg-white px-3 py-2 shadow-sm">
+            <CornerUpLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--portal-primary,#4F46E5)]" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-semibold text-[var(--portal-primary,#4F46E5)]">
+                Replying to {replyingTo.senderLabel}
+              </p>
+              <p className="line-clamp-1 text-[12px] text-gray-600">
+                {replyingTo.content}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCancelReply}
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              aria-label="Cancel reply"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
         <div className="flex items-end gap-2">
           {onAttachFile && (
             <Button

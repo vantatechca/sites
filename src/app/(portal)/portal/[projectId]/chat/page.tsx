@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   ChatInterface,
   type ChatMessage,
+  type ReplyReference,
 } from "@/components/portal/chat-interface";
 
 export default function ChatPage() {
@@ -77,13 +78,14 @@ export default function ChatPage() {
     };
   }, [fetchMessages]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, replyTo?: ReplyReference) => {
     const optimisticMsg: ChatMessage = {
       id: `temp-${Date.now()}`,
       content,
       senderId: currentUserId || "demo-client",
       senderRole: "client",
       createdAt: new Date().toISOString(),
+      replyTo,
     };
 
     setMessages((prev) => [...prev, optimisticMsg]);
@@ -95,13 +97,13 @@ export default function ChatPage() {
         body: JSON.stringify({
           content,
           threadType: "client_chat",
+          replyToId: replyTo?.id,
         }),
       });
 
       if (res.ok) {
         await fetchMessages();
       }
-      // In demo mode or when API fails, keep the optimistic message
     } catch {
       // Network error — keep the optimistic message so the user sees it sent
     }
