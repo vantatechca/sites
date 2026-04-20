@@ -33,31 +33,34 @@ export default function ChatPage() {
         setCurrentUserId(data.currentUserId);
       }
     } catch {
-      // Demo mode: mock messages
-      setCurrentUserId("demo-client");
-      setMessages([
-        {
-          id: "msg_1",
-          content: "Hi! Welcome to your project. We're excited to get started on your new Shopify store.",
-          senderId: "usr_1",
-          senderRole: "agency" as const,
-          createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-        },
-        {
-          id: "msg_2",
-          content: "Thanks so much! I've been looking forward to this. Can you share the initial design concepts when they're ready?",
-          senderId: "demo-client",
-          senderRole: "client" as const,
-          createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-        },
-        {
-          id: "msg_3",
-          content: "Absolutely! We're working on the homepage mockup right now. I'll share the first draft by end of this week.",
-          senderId: "usr_1",
-          senderRole: "agency" as const,
-          createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-        },
-      ]);
+      // Demo mode: seed with mock messages ONLY if state is still empty
+      setCurrentUserId((prev) => prev || "demo-client");
+      setMessages((prev) => {
+        if (prev.length > 0) return prev;
+        return [
+          {
+            id: "msg_1",
+            content: "Hi! Welcome to your project. We're excited to get started on your new Shopify store.",
+            senderId: "usr_1",
+            senderRole: "agency" as const,
+            createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+          },
+          {
+            id: "msg_2",
+            content: "Thanks so much! I've been looking forward to this. Can you share the initial design concepts when they're ready?",
+            senderId: "demo-client",
+            senderRole: "client" as const,
+            createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+          },
+          {
+            id: "msg_3",
+            content: "Absolutely! We're working on the homepage mockup right now. I'll share the first draft by end of this week.",
+            senderId: "usr_1",
+            senderRole: "agency" as const,
+            createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+          },
+        ];
+      });
     } finally {
       setIsLoading(false);
     }
@@ -75,11 +78,10 @@ export default function ChatPage() {
   }, [fetchMessages]);
 
   const handleSendMessage = async (content: string) => {
-    // Optimistically add the message
     const optimisticMsg: ChatMessage = {
       id: `temp-${Date.now()}`,
       content,
-      senderId: currentUserId,
+      senderId: currentUserId || "demo-client",
       senderRole: "client",
       createdAt: new Date().toISOString(),
     };
@@ -97,18 +99,11 @@ export default function ChatPage() {
       });
 
       if (res.ok) {
-        // Refresh messages to get the real server-generated message
         await fetchMessages();
-      } else {
-        // Remove optimistic message on failure
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== optimisticMsg.id)
-        );
-        throw new Error("Failed to send");
       }
-    } catch (error) {
-      // Re-throw so ChatInterface can restore the input
-      throw error;
+      // In demo mode or when API fails, keep the optimistic message
+    } catch {
+      // Network error — keep the optimistic message so the user sees it sent
     }
   };
 
