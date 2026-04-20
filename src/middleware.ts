@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PUBLIC_PATHS = ["/login", "/portal/login"];
+const PUBLIC_PATHS = ["/", "/login", "/portal/login"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -34,9 +34,11 @@ export async function middleware(request: NextRequest) {
   // Demo mode: if no token, allow access but set a demo cookie
   // This lets users explore the UI without a real database
   if (!token) {
-    const response = NextResponse.next();
-    response.cookies.set("siteforge-demo", "true", { path: "/" });
-    return response;
+    const loginUrl = pathname.startsWith("/portal") ? "/portal/login" : "/login";
+    const url = request.nextUrl.clone();
+    url.pathname = loginUrl;
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
