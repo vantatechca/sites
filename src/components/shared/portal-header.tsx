@@ -29,8 +29,18 @@ export function PortalHeader({
 }: PortalHeaderProps) {
   const pathname = usePathname();
 
+  const pathParts = pathname.split("/").filter(Boolean);
+  const projectId = pathParts[1] || "";
+
+  const buildHref = (baseHref: string): string => {
+    if (!projectId) return baseHref;
+    if (baseHref === "/portal") return `/portal/${projectId}`;
+    const suffix = baseHref.replace("/portal", "");
+    return `/portal/${projectId}${suffix}`;
+  };
+
   const isActive = (href: string) => {
-    if (href === "/portal") return pathname === "/portal";
+    if (href === `/portal/${projectId}`) return pathname === href;
     return pathname.startsWith(href);
   };
 
@@ -68,12 +78,13 @@ export function PortalHeader({
         {/* Center: Navigation */}
         <nav className="hidden items-center gap-1 md:flex">
           {PORTAL_NAV_ITEMS.map((item) => {
-            const active = isActive(item.href);
+            const href = buildHref(item.href);
+            const active = isActive(href);
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={href}
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   active
