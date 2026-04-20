@@ -114,17 +114,17 @@ export function Header({ notificationCount = 0 }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8}>
             <DropdownMenuItem>
-              <Link href="/agency/projects/new" className="flex w-full">
+              <Link href="/agency/projects" className="flex w-full">
                 New Project
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link href="/agency/team/invite" className="flex w-full">
+              <Link href="/agency/team" className="flex w-full">
                 Invite Team Member
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link href="/agency/checkins/new" className="flex w-full">
+              <Link href="/agency/checkins" className="flex w-full">
                 New Check-in
               </Link>
             </DropdownMenuItem>
