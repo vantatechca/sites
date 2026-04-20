@@ -30,7 +30,10 @@ export function PortalHeader({
   const pathname = usePathname();
 
   const pathParts = pathname.split("/").filter(Boolean);
-  const projectId = pathParts[1] || "";
+  // Reserved portal routes that aren't project IDs
+  const RESERVED_ROUTES = ["settings"];
+  const secondSegment = pathParts[1] || "";
+  const projectId = RESERVED_ROUTES.includes(secondSegment) ? "" : secondSegment;
 
   const buildHref = (baseHref: string): string => {
     if (!projectId) return baseHref;
