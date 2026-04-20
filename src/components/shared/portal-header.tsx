@@ -115,10 +115,10 @@ export function PortalHeader({
             </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={8}>
-            <DropdownMenuItem disabled>
-              <span className="flex w-full text-gray-400">
+            <DropdownMenuItem>
+              <Link href="/portal/settings" className="flex w-full">
                 Account Settings
-              </span>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
