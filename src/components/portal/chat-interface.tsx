@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Paperclip, MessageCircle } from "lucide-react";
+import { Send, Paperclip, MessageCircle, Pencil, Trash2, Check, X } from "lucide-react";
 
 export interface ChatMessage {
   id: string;
@@ -19,6 +19,8 @@ interface ChatInterfaceProps {
   messages: ChatMessage[];
   currentUserId: string;
   onSendMessage: (content: string) => Promise<void>;
+  onEditMessage?: (id: string, newContent: string) => Promise<void> | void;
+  onDeleteMessage?: (id: string) => Promise<void> | void;
   onAttachFile?: () => void;
   isLoading?: boolean;
   className?: string;
@@ -65,14 +67,43 @@ export function ChatInterface({
   messages,
   currentUserId,
   onSendMessage,
+  onEditMessage,
+  onDeleteMessage,
   onAttachFile,
   isLoading = false,
   className,
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleStartEdit = (msg: ChatMessage) => {
+    setEditingId(msg.id);
+    setEditValue(msg.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditValue("");
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editValue.trim();
+    if (!editingId || !trimmed || !onEditMessage) {
+      handleCancelEdit();
+      return;
+    }
+    await onEditMessage(editingId, trimmed);
+    handleCancelEdit();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!onDeleteMessage) return;
+    await onDeleteMessage(id);
+  };
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -157,11 +188,12 @@ export function ChatInterface({
                       idx === 0 ||
                       dayMessages[idx - 1].senderRole !== msg.senderRole;
 
+                    const isEditing = editingId === msg.id;
                     return (
                       <div
                         key={msg.id}
                         className={cn(
-                          "flex flex-col",
+                          "group flex flex-col",
                           isClient ? "items-end" : "items-start"
                         )}
                       >
@@ -170,17 +202,79 @@ export function ChatInterface({
                             {isClient ? "You" : "Your Team"}
                           </span>
                         )}
-                        <div
-                          className={cn(
-                            "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed sm:max-w-[70%]",
-                            isClient
-                              ? "rounded-br-md bg-[var(--portal-primary,#4F46E5)] text-white"
-                              : "rounded-bl-md bg-gray-100 text-gray-800"
+                        <div className={cn("flex items-center gap-2", isClient ? "flex-row" : "flex-row-reverse")}>
+                          {isClient && !isEditing && (onEditMessage || onDeleteMessage) && (
+                            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              {onEditMessage && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEdit(msg)}
+                                  className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                                  aria-label="Edit message"
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </button>
+                              )}
+                              {onDeleteMessage && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDelete(msg.id)}
+                                  className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600"
+                                  aria-label="Delete message"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
                           )}
-                        >
-                          <p className="whitespace-pre-wrap break-words">
-                            {msg.content}
-                          </p>
+                          <div
+                            className={cn(
+                              "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed sm:max-w-[70%]",
+                              isClient
+                                ? "rounded-br-md bg-[var(--portal-primary,#4F46E5)] text-white"
+                                : "rounded-bl-md bg-gray-100 text-gray-800"
+                            )}
+                          >
+                            {isEditing ? (
+                              <div className="flex flex-col gap-2">
+                                <Textarea
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                      e.preventDefault();
+                                      handleSaveEdit();
+                                    }
+                                    if (e.key === "Escape") handleCancelEdit();
+                                  }}
+                                  autoFocus
+                                  className="min-h-[60px] resize-none border-white/30 bg-white/10 text-white placeholder:text-white/60 focus-visible:border-white/50 focus-visible:ring-white/20"
+                                />
+                                <div className="flex items-center justify-end gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={handleCancelEdit}
+                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                                    aria-label="Cancel edit"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleSaveEdit}
+                                    className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[var(--portal-primary,#4F46E5)] hover:bg-white/90"
+                                    aria-label="Save edit"
+                                  >
+                                    <Check className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="whitespace-pre-wrap break-words">
+                                {msg.content}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <span
                           className={cn(

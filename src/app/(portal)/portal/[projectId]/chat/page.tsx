@@ -107,6 +107,34 @@ export default function ChatPage() {
     }
   };
 
+  const handleEditMessage = async (id: string, newContent: string) => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, content: newContent } : m))
+    );
+
+    try {
+      await fetch(`/api/projects/${projectId}/messages/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newContent }),
+      });
+    } catch {
+      // Network error — optimistic update stays
+    }
+  };
+
+  const handleDeleteMessage = async (id: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+
+    try {
+      await fetch(`/api/projects/${projectId}/messages/${id}`, {
+        method: "DELETE",
+      });
+    } catch {
+      // Network error — optimistic removal stays
+    }
+  };
+
   const handleAttachFile = () => {
     // Create a hidden file input and trigger it
     const input = document.createElement("input");
@@ -168,6 +196,8 @@ export default function ChatPage() {
           messages={messages}
           currentUserId={currentUserId}
           onSendMessage={handleSendMessage}
+          onEditMessage={handleEditMessage}
+          onDeleteMessage={handleDeleteMessage}
           onAttachFile={handleAttachFile}
           isLoading={isTyping}
           className="h-full"
