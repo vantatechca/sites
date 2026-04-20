@@ -15,6 +15,15 @@ async function seed() {
     throw new Error("DATABASE_URL environment variable is not set");
   }
 
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!seedPassword || seedPassword.length < 12) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD is not set or is too short (min 12 chars). " +
+        "Add a strong password to .env.local: SEED_ADMIN_PASSWORD=your-strong-password-here"
+    );
+  }
+  const seedHash = hashSync(seedPassword, 12);
+
   const sql = neon(process.env.DATABASE_URL);
   const db = drizzle(sql);
 
@@ -48,7 +57,7 @@ async function seed() {
     .values({
       email: "admin@siteforge.com",
       name: "SiteForge Admin",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: seedHash,
       role: "admin",
       department: "project_management",
       specialization: "Platform Administration",
@@ -67,7 +76,7 @@ async function seed() {
     .values({
       email: "sarah@siteforge.com",
       name: "Sarah Chen",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: seedHash,
       role: "manager",
       department: "design",
       specialization: "UI/UX Design Lead",
@@ -83,7 +92,7 @@ async function seed() {
     .values({
       email: "marcus@siteforge.com",
       name: "Marcus Johnson",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: seedHash,
       role: "manager",
       department: "development",
       specialization: "Shopify Development Lead",
@@ -99,7 +108,7 @@ async function seed() {
     .values({
       email: "emma@siteforge.com",
       name: "Emma Williams",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: seedHash,
       role: "team_member",
       department: "content",
       specialization: "Copywriting & SEO",
@@ -115,7 +124,7 @@ async function seed() {
     .values({
       email: "james@siteforge.com",
       name: "James Park",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: seedHash,
       role: "team_member",
       department: "qa",
       specialization: "Quality Assurance & Testing",
