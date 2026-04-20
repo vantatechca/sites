@@ -495,7 +495,7 @@ export default function InvoicesPage() {
                         <tbody>
                           {selected.lineItems.map((item, i) => (
                             <tr
-                              key={i}
+                              key={`${selected.id}-${i}-${item.description}`}
                               className="border-b border-gray-50 last:border-0"
                             >
                               <td className="px-3 py-2.5 text-gray-700">

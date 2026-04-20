@@ -31,7 +31,7 @@ export function PortalHeader({
 
   const pathParts = pathname.split("/").filter(Boolean);
   // Reserved portal routes that aren't project IDs
-  const RESERVED_ROUTES = ["settings"];
+  const RESERVED_ROUTES = ["settings", "chat", "deliverables", "invoices"];
   const secondSegment = pathParts[1] || "";
   const projectId = RESERVED_ROUTES.includes(secondSegment) ? "" : secondSegment;
 
