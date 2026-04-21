@@ -200,13 +200,20 @@ export default function CheckinsPage() {
             <button
               type="button"
               onClick={() => setShowBlockersOnly(!showBlockersOnly)}
-              className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
+              aria-pressed={showBlockersOnly}
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
                 showBlockersOnly
-                  ? "bg-red-100 text-red-700"
+                  ? "bg-red-600 text-white shadow-sm"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
+              <AlertTriangle className="size-3" />
               Has Blockers
+              {showBlockersOnly && (
+                <span className="ml-0.5 rounded-full bg-white/25 px-1 text-[9px]">
+                  {checkins.filter((c) => c.blockers.length > 0).length}
+                </span>
+              )}
             </button>
           </div>
         </div>
