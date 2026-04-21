@@ -14,7 +14,11 @@ import {
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Search, Users, Mail, Clock, Briefcase, Activity, CheckCircle2 } from "lucide-react"
+import { toast } from "sonner"
 import { DEPARTMENT_LABELS } from "@/types"
 import type { Department } from "@/types"
 import { useTeam } from "@/hooks/use-team"
@@ -82,11 +86,36 @@ function HeatmapTooltip({
 export default function TeamPage() {
   const [search, setSearch] = useState("")
   const [department, setDepartment] = useState<Department | "all">("all")
+  const [profileMember, setProfileMember] = useState<TeamMemberStats | null>(null)
+  const [reassignMember, setReassignMember] = useState<TeamMemberStats | null>(null)
+  const [reassignTarget, setReassignTarget] = useState<string>("")
 
   const { data: teamMembers = [], isLoading } = useTeam({
     search: search || undefined,
     department,
   })
+
+  const handleViewProfile = (id: string) => {
+    const member = teamMembers.find((m) => m.id === id)
+    if (member) setProfileMember(member)
+  }
+
+  const handleReassign = (id: string) => {
+    const member = teamMembers.find((m) => m.id === id)
+    if (member) {
+      setReassignMember(member)
+      setReassignTarget("")
+    }
+  }
+
+  const confirmReassign = () => {
+    if (!reassignMember || !reassignTarget) return
+    toast.success(
+      `${reassignMember.name}'s workload will be reassigned to ${reassignTarget}`
+    )
+    setReassignMember(null)
+    setReassignTarget("")
+  }
 
   // Heatmap data
   const heatmapData = useMemo(() => {
@@ -193,12 +222,8 @@ export default function TeamPage() {
               <TeamMemberCard
                 key={member.id}
                 member={member}
-                onViewProfile={(id) => {
-                  /* router.push would go here */
-                }}
-                onReassign={(id) => {
-                  /* reassign dialog would go here */
-                }}
+                onViewProfile={handleViewProfile}
+                onReassign={handleReassign}
               />
             ))}
           </div>
@@ -287,6 +312,175 @@ export default function TeamPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* View Profile Sheet */}
+      <Sheet
+        open={!!profileMember}
+        onOpenChange={(open) => {
+          if (!open) setProfileMember(null)
+        }}
+      >
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Team Member Profile</SheetTitle>
+          </SheetHeader>
+          {profileMember && (
+            <div className="mt-6 space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-full bg-[#2D5A8C]/10 text-base font-semibold text-[#2D5A8C]">
+                  {profileMember.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {profileMember.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {profileMember.specialization ||
+                      (profileMember.department
+                        ? DEPARTMENT_LABELS[profileMember.department]
+                        : "—")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2 rounded-lg border bg-gray-50/50 p-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <Mail className="size-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground">Email:</span>
+                  <span className="font-medium text-gray-900">
+                    {profileMember.email}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Briefcase className="size-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground">Role:</span>
+                  <span className="font-medium capitalize text-gray-900">
+                    {profileMember.role.replace("_", " ")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground">Timezone:</span>
+                  <span className="font-medium text-gray-900">
+                    {profileMember.timezone || "—"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg border p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <Activity className="size-3" />
+                    Active Projects
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">
+                    {profileMember.activeProjectCount}
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">
+                      / {profileMember.maxConcurrentProjects}
+                    </span>
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <CheckCircle2 className="size-3" />
+                    Completed
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">
+                    {profileMember.completedProjectCount}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Tasks This Week
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">
+                    {profileMember.tasksCompletedThisWeek}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Check-in Streak
+                  </div>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">
+                    {profileMember.checkinStreak}d
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    setProfileMember(null)
+                    handleReassign(profileMember.id)
+                  }}
+                >
+                  Reassign Workload
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setProfileMember(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Reassign Dialog */}
+      <Dialog
+        open={!!reassignMember}
+        onOpenChange={(open) => {
+          if (!open) setReassignMember(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reassign Workload</DialogTitle>
+          </DialogHeader>
+          {reassignMember && (
+            <div className="space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Reassign <span className="font-medium text-gray-900">{reassignMember.name}</span>&apos;s
+                {" "}{reassignMember.activeProjectCount} active project
+                {reassignMember.activeProjectCount !== 1 ? "s" : ""} to another team member.
+              </p>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">
+                  Reassign to
+                </label>
+                <select
+                  value={reassignTarget}
+                  onChange={(e) => setReassignTarget(e.target.value)}
+                  className="flex h-9 w-full items-center rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <option value="">Select a team member...</option>
+                  {teamMembers
+                    .filter((m) => m.id !== reassignMember.id)
+                    .map((m) => (
+                      <option key={m.id} value={m.name}>
+                        {m.name} ({m.activeProjectCount}/{m.maxConcurrentProjects} projects)
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setReassignMember(null)}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={confirmReassign} disabled={!reassignTarget}>
+              Confirm Reassign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
