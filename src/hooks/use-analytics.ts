@@ -124,57 +124,75 @@ export const analyticsKeys = {
 // Mock data
 // ---------------------------------------------------------------------------
 
-function getMockAnalytics(): AnalyticsData {
+function getMockAnalytics(dateRange: string = "30d"): AnalyticsData {
+  // Scale mock values based on date range so the UI visibly responds to filter changes
+  const scale =
+    dateRange === "7d" ? 0.25 : dateRange === "90d" ? 3 : dateRange === "all" ? 8 : 1;
+  const change =
+    dateRange === "7d" ? 5 : dateRange === "90d" ? 18 : dateRange === "all" ? 22 : 12;
+
+  const totalProjects = Math.max(1, Math.round(24 * scale));
+  const activeProjects = Math.max(1, Math.round(14 * scale));
+  const completedProjects = Math.max(0, Math.round(8 * scale));
+  const onHoldProjects = Math.max(0, Math.round(2 * scale));
+  const revenueCollected = Math.round(389000 * scale);
+  const revenueOutstanding = Math.round(65000 * scale);
+  const revenueTotal = revenueCollected + revenueOutstanding;
+  const avgBuildDays =
+    dateRange === "7d" ? 14 : dateRange === "90d" ? 20 : dateRange === "all" ? 22 : 18;
+  const satisfaction =
+    dateRange === "7d" ? 96 : dateRange === "90d" ? 92 : dateRange === "all" ? 90 : 94;
+
   return {
     metrics: {
       totalProjects: {
         label: "Total Projects",
-        value: 24,
-        change: 12,
+        value: totalProjects,
+        change,
         breakdown: [
-          { label: "Active", value: 14 },
-          { label: "Completed", value: 8 },
-          { label: "On Hold", value: 2 },
+          { label: "Active", value: activeProjects },
+          { label: "Completed", value: completedProjects },
+          { label: "On Hold", value: onHoldProjects },
         ],
       },
       avgBuildTime: {
         label: "Avg Build Time",
-        value: "18 days",
-        change: -8,
+        value: `${avgBuildDays} days`,
+        change: -change / 2,
         breakdown: [
-          { label: "Basic", value: 10 },
-          { label: "Pro", value: 18 },
-          { label: "Enterprise", value: 32 },
+          { label: "Basic", value: Math.round(avgBuildDays * 0.55) },
+          { label: "Pro", value: avgBuildDays },
+          { label: "Enterprise", value: Math.round(avgBuildDays * 1.75) },
         ],
       },
       revenue: {
         label: "Revenue",
-        value: "$454K",
-        change: 15,
+        value: `$${Math.round(revenueTotal / 1000)}K`,
+        change,
         breakdown: [
-          { label: "Collected", value: 389000 },
-          { label: "Outstanding", value: 65000 },
+          { label: "Collected", value: revenueCollected },
+          { label: "Outstanding", value: revenueOutstanding },
         ],
       },
       clientSatisfaction: {
         label: "Client Satisfaction",
-        value: "94%",
-        change: 3,
+        value: `${satisfaction}%`,
+        change: change / 4,
       },
     },
     pipelineDistribution: [
-      { status: "intake", label: "Intake", count: 2, color: "#64748B" },
-      { status: "requirements", label: "Requirements", count: 1, color: "#64748B" },
-      { status: "design", label: "Design", count: 3, color: "#8B5CF6" },
-      { status: "development", label: "Development", count: 4, color: "#2D5A8C" },
-      { status: "content", label: "Content", count: 2, color: "#06B6D4" },
-      { status: "review_internal", label: "Internal Review", count: 1, color: "#6366F1" },
-      { status: "client_review", label: "Client Review", count: 3, color: "#F59E0B" },
-      { status: "revisions", label: "Revisions", count: 1, color: "#F97316" },
-      { status: "final_qa", label: "Final QA", count: 1, color: "#6366F1" },
-      { status: "launch_prep", label: "Launch Prep", count: 2, color: "#10B981" },
-      { status: "launched", label: "Launched", count: 1, color: "#22C55E" },
-      { status: "completed", label: "Completed", count: 5, color: "#16A34A" },
+      { status: "intake", label: "Intake", count: Math.max(0, Math.round(2 * scale)), color: "#64748B" },
+      { status: "requirements", label: "Requirements", count: Math.max(0, Math.round(1 * scale)), color: "#64748B" },
+      { status: "design", label: "Design", count: Math.max(0, Math.round(3 * scale)), color: "#8B5CF6" },
+      { status: "development", label: "Development", count: Math.max(0, Math.round(4 * scale)), color: "#2D5A8C" },
+      { status: "content", label: "Content", count: Math.max(0, Math.round(2 * scale)), color: "#06B6D4" },
+      { status: "review_internal", label: "Internal Review", count: Math.max(0, Math.round(1 * scale)), color: "#6366F1" },
+      { status: "client_review", label: "Client Review", count: Math.max(0, Math.round(3 * scale)), color: "#F59E0B" },
+      { status: "revisions", label: "Revisions", count: Math.max(0, Math.round(1 * scale)), color: "#F97316" },
+      { status: "final_qa", label: "Final QA", count: Math.max(0, Math.round(1 * scale)), color: "#6366F1" },
+      { status: "launch_prep", label: "Launch Prep", count: Math.max(0, Math.round(2 * scale)), color: "#10B981" },
+      { status: "launched", label: "Launched", count: Math.max(0, Math.round(1 * scale)), color: "#22C55E" },
+      { status: "completed", label: "Completed", count: Math.max(0, Math.round(5 * scale)), color: "#16A34A" },
     ],
     stageTime: [
       { stage: "Intake", averageDays: 2, targetDays: 2 },
@@ -267,18 +285,24 @@ function getMockAnalytics(): AnalyticsData {
         activityLast30Days: [5, 4, 6, 5, 3, 0, 0, 5, 6, 4, 5, 6, 4, 5, 2, 0, 0, 6, 5, 4, 6, 5, 4, 6, 3, 0, 0, 5, 6, 4],
       },
     ],
-    revenue: [
-      { month: "Sep", collected: 42000, outstanding: 8000, projected: null },
-      { month: "Oct", collected: 51000, outstanding: 12000, projected: null },
-      { month: "Nov", collected: 48000, outstanding: 15000, projected: null },
-      { month: "Dec", collected: 63000, outstanding: 9000, projected: null },
-      { month: "Jan", collected: 55000, outstanding: 11000, projected: null },
-      { month: "Feb", collected: 58000, outstanding: 14000, projected: null },
-      { month: "Mar", collected: 72000, outstanding: 18000, projected: null },
-      { month: "Apr", collected: 65000, outstanding: 10000, projected: 70000 },
-      { month: "May", collected: 0, outstanding: 0, projected: 75000 },
-      { month: "Jun", collected: 0, outstanding: 0, projected: 80000 },
-    ],
+    revenue: (() => {
+      const allMonths = [
+        { month: "Sep", collected: 42000, outstanding: 8000, projected: null },
+        { month: "Oct", collected: 51000, outstanding: 12000, projected: null },
+        { month: "Nov", collected: 48000, outstanding: 15000, projected: null },
+        { month: "Dec", collected: 63000, outstanding: 9000, projected: null },
+        { month: "Jan", collected: 55000, outstanding: 11000, projected: null },
+        { month: "Feb", collected: 58000, outstanding: 14000, projected: null },
+        { month: "Mar", collected: 72000, outstanding: 18000, projected: null },
+        { month: "Apr", collected: 65000, outstanding: 10000, projected: 70000 },
+        { month: "May", collected: 0, outstanding: 0, projected: 75000 },
+        { month: "Jun", collected: 0, outstanding: 0, projected: 80000 },
+      ] as RevenueDataPoint[];
+      if (dateRange === "7d") return allMonths.slice(-2);
+      if (dateRange === "30d") return allMonths.slice(-4);
+      if (dateRange === "90d") return allMonths.slice(-7);
+      return allMonths;
+    })(),
     tierComparison: [
       { metric: "Avg Build Time (days)", basic: 10, pro: 18, enterprise: 32 },
       { metric: "Avg Cost ($K)", basic: 4.5, pro: 15, enterprise: 30 },
@@ -344,7 +368,7 @@ export function useAnalytics(dateRange: string = "30d") {
           `/api/analytics?range=${dateRange}`
         )
       } catch {
-        return getMockAnalytics()
+        return getMockAnalytics(dateRange)
       }
     },
     staleTime: 60_000,
