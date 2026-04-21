@@ -195,6 +195,7 @@ export function CheckinForm({ onComplete }: CheckinFormProps) {
   const [response, setResponse] = useState("")
   const [result, setResult] = useState<CheckinResult | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [accepted, setAccepted] = useState(false)
 
   const handleSubmit = async () => {
     if (!response.trim()) return
@@ -237,22 +238,57 @@ export function CheckinForm({ onComplete }: CheckinFormProps) {
       setIsProcessing(false)
     }
   }
-
-  if (isProcessing) {
+    if (isProcessing) {
     return <ProcessingAnimation />
   }
 
+  if (accepted) {
+    return (
+      <Card className="border-emerald-200 bg-emerald-50/40">
+        <CardContent className="flex flex-col items-center justify-center py-10 gap-3">
+          <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100">
+            <CheckCircle2 className="size-6 text-emerald-600" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-[#1A1A2E]">
+              Check-in submitted
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Thanks! Your daily check-in has been accepted.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setAccepted(false)
+              setResult(null)
+              setResponse("")
+            }}
+          >
+            Submit another update
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
   if (result) {
+    const current = result
     return (
       <AIResultCard
-        result={result}
-        onAccept={() => onComplete?.()}
+        result={current}
+        onAccept={() => {
+          setAccepted(true)
+          onComplete?.()
+        }}
         onCorrect={() => {
           setResult(null)
         }}
       />
     )
   }
+
 
   return (
     <Card className="border-[#2D5A8C]/20">
