@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, ChevronRight, Search, Plus, Check } from "lucide-react";
+import { Bell, ChevronRight, Search, Plus, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -105,17 +105,75 @@ function formatRelativeTime(dateStr: string): string {
   return `${days}d ago`;
 }
 
+interface SearchItem {
+  label: string;
+  description: string;
+  href: string;
+  category: "Page" | "Project" | "Client" | "Team";
+}
+
+const SEARCHABLE_ITEMS: SearchItem[] = [
+  { label: "Dashboard", description: "Agency overview", href: "/agency", category: "Page" },
+  { label: "Projects", description: "All projects", href: "/agency/projects", category: "Page" },
+  { label: "Pipeline", description: "Kanban board", href: "/agency/pipeline", category: "Page" },
+  { label: "Team", description: "Team members", href: "/agency/team", category: "Page" },
+  { label: "Check-ins", description: "Daily check-ins", href: "/agency/checkins", category: "Page" },
+  { label: "Analytics", description: "Performance metrics", href: "/agency/analytics", category: "Page" },
+  { label: "Settings", description: "Agency settings", href: "/agency/settings", category: "Page" },
+  { label: "Artisan Candles Store", description: "Sarah Mitchell · Design", href: "/agency/projects", category: "Project" },
+  { label: "FitGear Pro Relaunch", description: "Marcus Chen · Development", href: "/agency/projects", category: "Project" },
+  { label: "Bloom Natural", description: "Olivia Hart · Launched", href: "/agency/projects", category: "Project" },
+  { label: "Urban Threads Boutique", description: "David Park · Client Review", href: "/agency/projects", category: "Project" },
+  { label: "Brew Masters", description: "Daniel Reeves · Development", href: "/agency/projects", category: "Project" },
+  { label: "Alex Rivera", description: "Project Management", href: "/agency/team", category: "Team" },
+  { label: "Sarah Chen", description: "Design Lead", href: "/agency/team", category: "Team" },
+  { label: "Marcus Johnson", description: "Development Lead", href: "/agency/team", category: "Team" },
+  { label: "Emma Williams", description: "Content & SEO", href: "/agency/team", category: "Team" },
+  { label: "James Park", description: "QA Engineer", href: "/agency/team", category: "Team" },
+];
+
 interface HeaderProps {
   notificationCount?: number;
 }
 
 export function Header({ notificationCount }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const title = getPageTitle(pathname);
   const breadcrumbs = getBreadcrumbs(pathname);
   const [notifications, setNotifications] = useState<NotificationItem[]>(
     MOCK_NOTIFICATIONS
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return SEARCHABLE_ITEMS.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+    ).slice(0, 8);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectResult = (item: SearchItem) => {
+    router.push(item.href);
+    setSearchQuery("");
+    setSearchOpen(false);
+  };
 
   useEffect(() => {
     fetch("/api/notifications")
@@ -179,12 +237,70 @@ export function Header({ notificationCount }: HeaderProps) {
 
       {/* Right: Search, Notifications, Quick Actions */}
       <div className="flex items-center gap-3">
-        <div className="relative hidden md:block">
+        <div ref={searchRef} className="relative hidden md:block">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search..."
-            className="h-8 w-64 pl-8 text-sm"
+            placeholder="Search projects, team, pages..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSearchOpen(true);
+            }}
+            onFocus={() => setSearchOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setSearchOpen(false);
+                setSearchQuery("");
+              }
+              if (e.key === "Enter" && searchResults.length > 0) {
+                handleSelectResult(searchResults[0]);
+              }
+            }}
+            className="h-8 w-64 pl-8 pr-8 text-sm"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSearchOpen(false);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {searchOpen && searchQuery && (
+            <div className="absolute left-0 right-0 top-full mt-1 max-h-80 overflow-y-auto rounded-lg border bg-white shadow-lg z-50">
+              {searchResults.length === 0 ? (
+                <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+                  No results for &quot;{searchQuery}&quot;
+                </p>
+              ) : (
+                searchResults.map((item) => (
+                  <button
+                    key={`${item.category}-${item.label}`}
+                    type="button"
+                    onClick={() => handleSelectResult(item)}
+                    className="flex w-full items-center justify-between border-b px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-gray-50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-gray-900">
+                        {item.label}
+                      </p>
+                      <p className="truncate text-[11px] text-gray-500">
+                        {item.description}
+                      </p>
+                    </div>
+                    <span className="ml-2 shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[9px] font-medium text-gray-600">
+                      {item.category}
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         <DropdownMenu>
