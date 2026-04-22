@@ -401,19 +401,18 @@ export default function DeliverablesPage() {
                       className="min-h-20 resize-none text-sm"
                       rows={3}
                     />
-                    <div className="flex justify-end">
-                      <Button
-                        size="sm"
-                        onClick={handleSubmitFeedback}
-                        disabled={!feedbackText.trim() || isSubmitting}
-                        style={{
-                          backgroundColor: "var(--portal-primary, #4F46E5)",
-                        }}
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        {isSubmitting ? "Sending..." : "Send Feedback"}
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleSubmitFeedback}
+                      disabled={!feedbackText.trim() || isSubmitting}
+                      className="w-full"
+                      style={{
+                        backgroundColor: "var(--portal-primary, #4F46E5)",
+                      }}
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      {isSubmitting ? "Sending..." : "Send Feedback"}
+                    </Button>
                   </div>
                 </div>
               </div>
