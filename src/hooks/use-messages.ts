@@ -145,13 +145,7 @@ export function useSendMessage(projectId: string) {
 
       return { previousMessages }
     },
-    onError: (_err, newMessage, context) => {
-      const queryKey = messageKeys.list(projectId, newMessage.thread_type)
-      if (context?.previousMessages) {
-        queryClient.setQueryData(queryKey, context.previousMessages)
-      }
-    },
-    onSettled: (_data, _error, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: messageKeys.list(projectId, variables.thread_type),
       })
