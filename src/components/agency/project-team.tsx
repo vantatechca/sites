@@ -84,6 +84,12 @@ export function ProjectTeam({
 }: ProjectTeamProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [reassignFrom, setReassignFrom] = useState<{
+    id: string
+    name: string
+    role: string
+  } | null>(null)
+  const [reassignToId, setReassignToId] = useState<string>("")
 
   // Fetch all agency team members
   const { data: allTeam, isLoading: teamLoading } = useQuery<{
@@ -222,7 +228,14 @@ export function ProjectTeam({
                     variant="outline"
                     size="sm"
                     className="flex-1 text-xs"
-                    onClick={() => {}}
+                    onClick={() => {
+                      setReassignFrom({
+                        id: member.id,
+                        name: member.name,
+                        role: member.projectRole,
+                      })
+                      setReassignToId("")
+                    }}
                   >
                     <RefreshCw className="h-3 w-3 mr-1" />
                     Reassign
@@ -318,6 +331,91 @@ export function ProjectTeam({
           </ScrollArea>
 
           <DialogFooter showCloseButton />
+        </DialogContent>
+      </Dialog>
+
+      {/* Reassign dialog */}
+      <Dialog
+        open={!!reassignFrom}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReassignFrom(null)
+            setReassignToId("")
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reassign Role</DialogTitle>
+            <DialogDescription>
+              {reassignFrom ? (
+                <>
+                  Replace{" "}
+                  <span className="font-medium text-gray-900">
+                    {reassignFrom.name}
+                  </span>{" "}
+                  with another available team member.
+                </>
+              ) : (
+                "Select a replacement."
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-700">
+              Replacement
+            </label>
+            <select
+              value={reassignToId}
+              onChange={(e) => setReassignToId(e.target.value)}
+              className="flex h-9 w-full items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <option value="">Select a team member...</option>
+              {availableMembers.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                  {m.department ? ` — ${m.department}` : ""} (
+                  {m.currentProjectCount ?? 0}/{m.maxConcurrentProjects ?? 5})
+                </option>
+              ))}
+            </select>
+            {availableMembers.length === 0 && (
+              <p className="text-[11px] text-muted-foreground">
+                No other team members available to swap with.
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setReassignFrom(null)
+                setReassignToId("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              disabled={!reassignToId || !reassignFrom}
+              onClick={() => {
+                if (!reassignFrom || !reassignToId) return
+                const target = availableMembers.find((m) => m.id === reassignToId)
+                onRemoveMember(reassignFrom.id)
+                onAddMember(
+                  reassignToId,
+                  target?.department ?? reassignFrom.role
+                )
+                setReassignFrom(null)
+                setReassignToId("")
+              }}
+            >
+              Confirm Reassign
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
