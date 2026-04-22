@@ -5,9 +5,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Bell, User, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={(e) => {
+        e.preventDefault();
+        onChange(!checked);
+      }}
+      className={cn(
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border transition-colors",
+        checked
+          ? "border-[var(--portal-primary,#4F46E5)] bg-[var(--portal-primary,#4F46E5)]"
+          : "border-gray-300 bg-gray-200"
+      )}
+    >
+      <span
+        className={cn(
+          "inline-block size-5 transform rounded-full bg-white shadow transition-transform",
+          checked ? "translate-x-[22px]" : "translate-x-0.5"
+        )}
+      />
+    </button>
+  );
+}
 
 export default function PortalSettingsPage() {
   const [saving, setSaving] = useState(false);
@@ -115,11 +148,10 @@ export default function PortalSettingsPage() {
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">{item.desc}</p>
               </div>
-              <Switch
-                className="shrink-0 ring-1 ring-gray-300 data-checked:ring-[var(--portal-primary,#4F46E5)]"
+              <Toggle
                 checked={notifications[item.key]}
-                onCheckedChange={(checked) =>
-                  setNotifications((prev) => ({ ...prev, [item.key]: !!checked }))
+                onChange={(next) =>
+                  setNotifications((prev) => ({ ...prev, [item.key]: next }))
                 }
               />
             </label>
