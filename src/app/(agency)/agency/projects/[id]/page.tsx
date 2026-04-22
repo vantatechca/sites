@@ -188,33 +188,36 @@ export default function ProjectDetailPage() {
       }
     )
   }
+const getCurrentMembers = () =>{
+  if (localMembers !== null) return localMembers
+  if (!project) return []
+  return ((project as unknown as Record<string, unknown>)).teamMembers as Array<{
+    userId: string
+    role: string
+    department?: string
+  }> ?? []
+}
 
-  // Handle team member changes
-  const handleAddTeamMember = (userId: string, role: string) => {
-    if (!project) return
-    const current = ((project as unknown as Record<string, unknown>).teamMembers as Array<{
-      userId: string
-      role: string
-    }>) ?? []
-    const updated = [...current, { userId, role }]
-    updateProject.mutate({
-      id: projectId,
-      data: { team_members: updated } as Record<string, unknown>,
-    })
-  }
+const handleAddTeamMember = (userId: string, role: string) => {
+  const current = getCurrentMembers()
+  if (current.some((m) => m.userId === userId)) return 
+  const updated =[...current, {userId, role}]
+  setLocalMembers(updated)
+  updateProject.mutate({
+    id: projectId,
+    data: { team_members: updated} as Record<string, unknown>,
+  })
+}
+const handleRemoveTeamMember = (userId: string) => {
+  const current = getCurrentMembers()
+  const updated = current.filter((m) => m.userId !== userId)
+  setLocalMembers(updated)
+  updateProject.mutate({
+    id: projectId,
+    data: { team_members: updated} as Record<string, unknown>,
+  })
+}
 
-  const handleRemoveTeamMember = (userId: string) => {
-    if (!project) return
-    const current = ((project as unknown as Record<string, unknown>).teamMembers as Array<{
-      userId: string
-      role: string
-    }>) ?? []
-    const updated = current.filter((m) => m.userId !== userId)
-    updateProject.mutate({
-      id: projectId,
-      data: { team_members: updated } as Record<string, unknown>,
-    })
-  }
 
   // Loading state
   if (isLoading) return <ProjectDetailSkeleton />
@@ -253,11 +256,13 @@ export default function ProjectDetailPage() {
   const manager = proj.manager as Record<string, unknown> | undefined
   const managerName = (manager?.name as string) ?? "Unassigned"
   const managerAvatar = manager?.avatarUrl as string | null
-  const projectMembers = (proj.teamMembers as Array<{
-    userId: string
-    role: string
-    department?: string
-  }>) ?? []
+  const projectMembers = localMembers !== null
+    ? localMembers
+    : (proj.teamMembers as Array<{
+      userId: string
+      role:string
+      department?: string
+    }>) ?? []
 
   const days = daysInStage(updatedAt)
   const priorityInfo = getPriorityLabel(priority)
