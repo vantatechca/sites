@@ -20,6 +20,7 @@ import {
   GanttTimeline,
   type GanttPhase,
 } from "@/components/portal/gantt-timeline";
+import { ProjectChatbot } from "@/components/portal/project-chatbot";
 import {
   PROJECT_STATUS_MAP,
   PROJECT_STATUS_ORDER,
@@ -550,6 +551,16 @@ export default function ProjectDashboardPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <ProjectChatbot
+        project={{
+          name: project.name,
+          status: project.status,
+          progressPercent: project.progressPercent,
+          currentPhase: project.currentPhase,
+          estimatedLaunchDate: project.estimatedLaunchDate,
+        }}
+      />
     </div>
   );
 }
