@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Kanban, Filter as FilterIcon, RefreshCw } from "lucide-react"
+import { toast } from "sonner"
 import {
   usePipelineProjects,
   useUpdateProject,
@@ -318,7 +319,10 @@ export default function PipelinePage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => refetch()}
+          onClick={async () => {
+            await refetch()
+            toast.success("Pipeline refreshed")
+          }}
           disabled={isLoading}
         >
           <RefreshCw className={`size-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`} />
