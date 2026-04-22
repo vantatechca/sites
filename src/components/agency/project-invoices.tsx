@@ -121,10 +121,8 @@ async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
 export function ProjectInvoices({ projectId }: ProjectInvoicesProps) {
   const queryClient = useQueryClient()
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData | null>(
-    null
-  )
-
+  const [localInvoices, setLocalInvoices] = useState<InvoiceData[]>([])
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceData | null>(null)
   // Form state
   const [formAmount, setFormAmount] = useState("")
   const [formDescription, setFormDescription] = useState("")
@@ -174,6 +172,29 @@ export function ProjectInvoices({ projectId }: ProjectInvoicesProps) {
     const amount = parseFloat(formAmount)
     if (isNaN(amount) || amount <= 0) return
 
+    const newInvoice: InvoiceData = {
+      id: `local-${Date.now()}`,
+      projectId,
+      clientId: "",
+      invoiceNumber: `INV-NEW-${String(Date.now()).slice(-4)}`,
+      amount: String(amount),
+      currency: "USD",
+      description: formDescription.trim() || null,
+      milestoneName: formMilestone.trim() || null,
+      status: "draft",
+      dueDate: formDueDate || null,
+      paidAt: null,
+      paymentMethod: null,
+      pdfUrl: null,
+      visibleToClient: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    setLocalInvoices((prev) => [newInvoice, ...prev])
+    setCreateDialogOpen(false)
+    resetForm()
+
     createInvoice.mutate({
       amount,
       description: formDescription.trim() || undefined,
@@ -182,7 +203,7 @@ export function ProjectInvoices({ projectId }: ProjectInvoicesProps) {
     })
   }
 
-  const invoices = invoicesData?.invoices ?? []
+  const invoices = [...localInvoices, ...(invoicesData?.invoices ?? [])]
   const totalInvoiced = invoices.reduce(
     (sum, inv) => sum + parseFloat(inv.amount),
     0
