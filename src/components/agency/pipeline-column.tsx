@@ -67,7 +67,7 @@ export function PipelineColumn({
 
   return (
     <div
-      className={`flex h-full w-[280px] min-w-[280px] flex-col rounded-xl border bg-gray-50/80 transition-colors ${
+      className={`flex h-full w-[220px] min-w-[220px] flex-col rounded-xl border bg-gray-50/80 transition-colors ${
         isOver ? "bg-[#2D5A8C]/5 border-[#2D5A8C]/30 ring-1 ring-[#2D5A8C]/20" : ""
       }`}
     >

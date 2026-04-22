@@ -392,7 +392,14 @@ export default function PipelinePage() {
             },
           }}
         >
-          <div className="overflow-x-auto pb-4 -mx-6 px-6">
+          <div
+            className="overflow-x-auto pb-4 -mx-6 px-6"
+            onWheel={(e) => {
+              if (e.deltaY !== 0 && !e.shiftKey) {
+                e.currentTarget.scrollLeft += e.deltaY
+              }
+            }}
+          >
             <div className="flex gap-4" style={{ minHeight: "calc(100vh - 320px)" }}>
               {PIPELINE_STAGES.map(({ status, label }) => {
                 const projects = columnData.get(status) ?? []
