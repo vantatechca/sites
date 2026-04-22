@@ -152,6 +152,9 @@ export default function ProjectDetailPage() {
 
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
+  const [localMembers, setLocalMembers] = useState<
+    Array<{ userId: string; role: string; department?: string }> | null
+  >(null)
 
   // Build team members array for checklist (from project data)
   const teamMembers = useMemo(() => {
