@@ -622,20 +622,147 @@ export default function ProjectDashboardPage() {
 
         {/* VIEW 4 -- Visual Timeline */}
         <TabsContent value={3} className="pt-8">
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="mb-6">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Header */}
+            <div>
               <h2 className="text-lg font-semibold text-gray-900">
                 Project Timeline
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                A visual overview of when each phase is scheduled.
+                See each phase of your project, key dates, and current status.
               </p>
             </div>
-            <GanttTimeline
-              phases={ganttPhases}
-              projectStart={project.createdAt}
-              projectEnd={project.estimatedLaunchDate || undefined}
-            />
+
+            {/* Gantt chart */}
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                Schedule Overview
+              </p>
+              <GanttTimeline
+                phases={ganttPhases}
+                projectStart={project.createdAt}
+                projectEnd={project.estimatedLaunchDate || undefined}
+              />
+            </div>
+
+            {/* Detailed Roadmap */}
+            <div>
+              <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                Phase-by-Phase Roadmap
+              </p>
+              <div className="relative">
+                {/* Vertical connector line */}
+                <div className="absolute left-[15px] top-0 h-full w-0.5 bg-gradient-to-b from-emerald-300 via-[var(--portal-primary,#4F46E5)] to-gray-200" />
+
+                <div className="space-y-4">
+                  {ganttPhases.map((phase, idx) => {
+                    const startDate = new Date(phase.startDate);
+                    const endDate = new Date(phase.endDate);
+                    const now = new Date();
+                    const isPast = endDate < now;
+                    const isFuture = startDate > now;
+                    const isCurrent = !isPast && !isFuture;
+                    const durationDays = Math.max(
+                      1,
+                      Math.round(
+                        (endDate.getTime() - startDate.getTime()) /
+                          86400000
+                      )
+                    );
+                    const formatDate = (d: Date) =>
+                      d.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      });
+
+                    return (
+                      <div
+                        key={phase.key}
+                        className="relative pl-10 animate-in fade-in slide-in-from-bottom-2 duration-500"
+                        style={{
+                          animationDelay: `${idx * 70}ms`,
+                          animationFillMode: "backwards",
+                        }}
+                      >
+                        {/* Status dot */}
+                        <div
+                          className={cn(
+                            "absolute left-0 top-2 flex size-8 shrink-0 items-center justify-center rounded-full ring-4 ring-white",
+                            isPast && "bg-emerald-500 text-white",
+                            isCurrent &&
+                              "bg-[var(--portal-primary,#4F46E5)] text-white animate-pulse",
+                            isFuture && "bg-gray-200 text-gray-400"
+                          )}
+                        >
+                          {isPast ? (
+                            <CheckCircle2 className="h-4 w-4" />
+                          ) : (
+                            <span className="text-xs font-semibold">
+                              {idx + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Card */}
+                        <div
+                          className={cn(
+                            "rounded-xl border p-4 transition-shadow hover:shadow-md",
+                            isCurrent
+                              ? "border-[var(--portal-primary,#4F46E5)]/30 bg-[var(--portal-primary,#4F46E5)]/5"
+                              : isPast
+                                ? "border-emerald-100 bg-emerald-50/30"
+                                : "border-gray-100 bg-white"
+                          )}
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-sm font-semibold text-gray-900">
+                                  {phase.label}
+                                </h3>
+                                {isCurrent && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--portal-primary,#4F46E5)] px-2 py-0.5 text-[10px] font-semibold text-white">
+                                    <span className="size-1.5 animate-pulse rounded-full bg-white" />
+                                    In Progress
+                                  </span>
+                                )}
+                                {isPast && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                    <CheckCircle2 className="size-2.5" />
+                                    Complete
+                                  </span>
+                                )}
+                                {isFuture && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                                    Upcoming
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                                <div className="flex items-center gap-1">
+                                  <CalendarClock className="size-3" />
+                                  <span>
+                                    {formatDate(startDate)} →{" "}
+                                    {formatDate(endDate)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="size-3" />
+                                  <span>
+                                    {durationDays} day
+                                    {durationDays !== 1 ? "s" : ""}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
