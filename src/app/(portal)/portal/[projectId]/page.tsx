@@ -27,6 +27,7 @@ import {
   type ProjectStatus,
   type TaskStatus,
 } from "@/types";
+import Link from "next/link";
 import {
   BarChart3,
   CheckCircle2,
@@ -36,6 +37,11 @@ import {
   ListChecks,
   Clock,
   GanttChart,
+  ArrowRight,
+  MessageSquare,
+  Package,
+  Receipt,
+  Sparkles,
 } from "lucide-react";
 
 // --- Types for API data ---
@@ -398,8 +404,114 @@ export default function ProjectDashboardPage() {
     );
   }
 
+  const projectId_str = project.id;
+
   return (
     <div className="space-y-8">
+      {/* ── Hero Section ─────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--portal-primary,#4F46E5)]/10 bg-gradient-to-br from-[var(--portal-primary,#4F46E5)] via-[#6366F1] to-[#818CF8] p-8 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-500">
+        <div className="absolute -right-10 -top-10 size-48 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-16 -left-10 size-56 rounded-full bg-white/10 blur-3xl" />
+
+        <div className="relative grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-medium backdrop-blur-sm">
+              <Sparkles className="h-3 w-3" />
+              {PROJECT_STATUS_MAP[project.status]}
+            </div>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight">
+              {project.name}
+            </h1>
+            <p className="mt-1.5 text-sm text-white/80">
+              {MOTIVATIONAL_MESSAGES[project.status] ||
+                "Your project is underway!"}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-4 text-xs">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                <span className="text-white/70">Est. launch:</span>
+                <span className="font-semibold">{stats.estCompletion}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span className="text-white/70">Milestones:</span>
+                <span className="font-semibold">
+                  {stats.completedMilestones}/{milestones.length}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Ring */}
+          <div className="flex justify-center sm:justify-end">
+            <div className="rounded-2xl bg-white/95 p-4 shadow-xl">
+              <PortalProgressRing
+                value={project.progressPercent}
+                size="md"
+                label="Complete"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick Actions ──────────────────────────────────────── */}
+      <div className="grid gap-3 sm:grid-cols-3 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100">
+        {[
+          {
+            icon: Package,
+            label: "Deliverables",
+            desc: "Review files & previews",
+            href: `/portal/${projectId_str}/deliverables`,
+            color: "violet",
+          },
+          {
+            icon: MessageSquare,
+            label: "Messages",
+            desc: "Chat with your team",
+            href: `/portal/${projectId_str}/chat`,
+            color: "blue",
+          },
+          {
+            icon: Receipt,
+            label: "Invoices",
+            desc: "View billing",
+            href: `/portal/${projectId_str}/invoices`,
+            color: "emerald",
+          },
+        ].map((action) => {
+          const colorClasses: Record<string, string> = {
+            violet: "bg-violet-50 text-violet-600",
+            blue: "bg-blue-50 text-blue-600",
+            emerald: "bg-emerald-50 text-emerald-600",
+          };
+          return (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:border-[var(--portal-primary,#4F46E5)]/30 hover:shadow-md"
+            >
+              <div
+                className={cn(
+                  "flex size-10 shrink-0 items-center justify-center rounded-lg",
+                  colorClasses[action.color]
+                )}
+              >
+                <action.icon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-gray-900">
+                  {action.label}
+                </p>
+                <p className="text-xs text-gray-500">{action.desc}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-[var(--portal-primary,#4F46E5)]" />
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ── Tabs Section ─────────────────────────────────────── */}
       <Tabs defaultValue={0}>
         {/* Tab navigation */}
         <TabsList
@@ -425,80 +537,56 @@ export default function ProjectDashboardPage() {
         </TabsList>
 
         {/* VIEW 1 -- Progress */}
-        <TabsContent value={0} className="pt-8">
-          <div className="flex flex-col items-center space-y-8">
-            {/* Big progress ring */}
-            <div className="animate-in fade-in zoom-in-95 duration-500">
-              <PortalProgressRing
-                value={project.progressPercent}
-                size="lg"
-                label="Complete"
-                subtitle={
-                  MOTIVATIONAL_MESSAGES[project.status] ||
-                  "Your project is underway!"
-                }
-              />
-            </div>
-
-            {/* Current phase name */}
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 text-center">
-              <p className="text-lg font-semibold text-gray-900">
-                {PROJECT_STATUS_MAP[project.status]}
-              </p>
-            </div>
-
-            {/* 3 stat cards */}
-            <div className="grid w-full max-w-xl gap-4 sm:grid-cols-3">
-              {[
-                {
-                  icon: CheckCircle2,
-                  label: "Milestones Done",
-                  value: `${stats.completedMilestones} of ${milestones.length}`,
-                  color: "text-emerald-500",
-                  bg: "bg-emerald-50",
-                },
-                {
-                  icon: BarChart3,
-                  label: "Current Phase",
-                  value: stats.currentPhaseLabel,
-                  color: "text-[var(--portal-primary,#4F46E5)]",
-                  bg: "bg-[var(--portal-primary-light,#EEF2FF)]",
-                },
-                {
-                  icon: CalendarClock,
-                  label: "Est. Completion",
-                  value: stats.estCompletion,
-                  color: "text-amber-500",
-                  bg: "bg-amber-50",
-                },
-              ].map((stat, i) => (
-                <Card
-                  key={stat.label}
-                  size="sm"
-                  className={cn(
-                    "text-center animate-in fade-in slide-in-from-bottom-3 duration-500"
-                  )}
-                  style={{ animationDelay: `${300 + i * 100}ms`, animationFillMode: "backwards" }}
-                >
-                  <CardContent className="flex flex-col items-center gap-2 py-4">
-                    <div
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg",
-                        stat.bg
-                      )}
-                    >
-                      <stat.icon className={cn("h-4.5 w-4.5", stat.color)} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">{stat.label}</p>
-                      <p className="mt-0.5 text-sm font-semibold text-gray-900">
-                        {stat.value}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+        <TabsContent value={0} className="pt-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              {
+                icon: CheckCircle2,
+                label: "Milestones Done",
+                value: `${stats.completedMilestones} of ${milestones.length}`,
+                color: "text-emerald-500",
+                bg: "bg-emerald-50",
+              },
+              {
+                icon: BarChart3,
+                label: "Current Phase",
+                value: stats.currentPhaseLabel,
+                color: "text-[var(--portal-primary,#4F46E5)]",
+                bg: "bg-[var(--portal-primary-light,#EEF2FF)]",
+              },
+              {
+                icon: CalendarClock,
+                label: "Est. Completion",
+                value: stats.estCompletion,
+                color: "text-amber-500",
+                bg: "bg-amber-50",
+              },
+            ].map((stat, i) => (
+              <Card
+                key={stat.label}
+                className="animate-in fade-in slide-in-from-bottom-3 duration-500"
+                style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
+              >
+                <CardContent className="flex items-center gap-3 py-4">
+                  <div
+                    className={cn(
+                      "flex size-11 shrink-0 items-center justify-center rounded-xl",
+                      stat.bg
+                    )}
+                  >
+                    <stat.icon className={cn("h-5 w-5", stat.color)} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] uppercase tracking-wider text-gray-400">
+                      {stat.label}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-gray-900 truncate">
+                      {stat.value}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
 
