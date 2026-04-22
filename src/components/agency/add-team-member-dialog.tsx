@@ -257,7 +257,7 @@ export function AddTeamMemberDialog({ trigger }: AddTeamMemberDialogProps) {
                 type="number"
                 min={1}
                 max={20}
-                {...register("maxConcurrentProjects")}
+                {...register("maxConcurrentProjects", { valueAsNumber: true })}
               />
               {errors.maxConcurrentProjects && (
                 <p className="text-xs text-red-600">
