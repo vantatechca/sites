@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { PORTAL_NAV_ITEMS } from "@/lib/constants";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -121,6 +123,13 @@ export function PortalHeader({
             <DropdownMenuItem>
               <Link href="/portal/settings" className="flex w-full">
                 Account Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">
+              <Link href="/" className="flex w-full items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Sign Out
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

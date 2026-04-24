@@ -8,6 +8,7 @@ import {
   PanelLeft,
   User,
   Hammer,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "@/lib/constants";
@@ -16,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -157,6 +159,13 @@ export function Sidebar({ user }: SidebarProps) {
               <Link href="/agency/settings" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive">
+              <Link href="/" className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Sign Out
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
