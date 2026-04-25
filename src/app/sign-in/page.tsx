@@ -94,7 +94,7 @@ function SignInForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@siteforge.com"
+                placeholder="you@email.com"
                 className="block w-full rounded-lg border border-neutral-200 bg-amber-50 px-9 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-300"
               />
             </div>
