@@ -1,3 +1,4 @@
+import { getServerSession } from "@/lib/auth";
 import { AgencyShell } from "./agency-shell";
 
 export default async function AgencyLayout({
@@ -5,12 +6,11 @@ export default async function AgencyLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // In demo mode (no real DB), use default user
-  // When auth is configured, this would use getServerSession
+  const session = await getServerSession();
   const user = {
-    name: "Admin User",
-    email: "admin@siteforge.com",
-    image: null as string | null,
+    name: session?.user?.name ?? "Guest",
+    email: session?.user?.email ?? "",
+    image: session?.user?.image ?? null,
   };
 
   return (
