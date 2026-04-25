@@ -52,14 +52,14 @@ function SignInForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
-      <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-950 p-8 shadow-2xl">
+    <div className="flex min-h-screen items-center justify-center bg-[#1A1A2E] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1A1A2E] p-8 shadow-2xl">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-neutral-100">
-            <Hammer className="h-6 w-6 text-neutral-900" />
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-indigo-500">
+            <Hammer className="h-6 w-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-          <p className="mt-1 text-sm text-neutral-400">
+          <p className="mt-1 text-sm text-indigo-200/70">
             Sign in to your SiteForge account
           </p>
         </div>
@@ -81,7 +81,7 @@ function SignInForm() {
           <div>
             <label
               htmlFor="email"
-              className="mb-1.5 block text-xs font-medium text-neutral-300"
+              className="mb-1.5 block text-xs font-medium text-indigo-100"
             >
               Email
             </label>
@@ -103,7 +103,7 @@ function SignInForm() {
           <div>
             <label
               htmlFor="password"
-              className="mb-1.5 block text-xs font-medium text-neutral-300"
+              className="mb-1.5 block text-xs font-medium text-indigo-100"
             >
               Password
             </label>
@@ -125,7 +125,7 @@ function SignInForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-neutral-100 py-2.5 text-sm font-semibold text-neutral-900 transition-colors hover:bg-white disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-400 disabled:opacity-50"
           >
             {isLoading ? (
               <>
@@ -137,11 +137,11 @@ function SignInForm() {
             )}
           </button>
 
-          <p className="text-center text-xs text-neutral-400">
+          <p className="text-center text-xs text-indigo-200/70">
             Don&apos;t have an account?{" "}
             <Link
               href="/sign-up"
-              className="font-medium text-white hover:underline"
+              className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline"
             >
               Create one
             </Link>

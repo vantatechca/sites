@@ -11,6 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 import { NAV_ITEMS } from "@/lib/constants";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -162,11 +163,12 @@ export function Sidebar({ user }: SidebarProps) {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
-              <Link href="/" className="flex items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Link>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

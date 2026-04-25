@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { PORTAL_NAV_ITEMS } from "@/lib/constants";
 import { LogOut } from "lucide-react";
@@ -126,11 +127,12 @@ export function PortalHeader({
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
-              <Link href="/" className="flex w-full items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Link>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
