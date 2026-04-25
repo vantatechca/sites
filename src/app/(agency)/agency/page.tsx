@@ -69,18 +69,21 @@ interface AtRiskProject {
 
 async function getDashboardData(): Promise<DashboardData> {
   try {
-    const [analyticsRes, projectsRes] = await Promise.allSettled([
+    const [analyticsRes] = await Promise.allSettled([
       fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/analytics`, {
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/projects`, {
         cache: "no-store",
       }),
     ])
 
-    // If both succeed, merge and return real data
     if (analyticsRes.status === "fulfilled" && analyticsRes.value.ok) {
-      return analyticsRes.value.json()
+      const contentType = analyticsRes.value.headers.get("content-type") || ""
+      if (contentType.includes("application/json")) {
+        try {
+          return await analyticsRes.value.json()
+        } catch {
+          // Fall through to mock if JSON parse fails
+        }
+      }
     }
   } catch {
     // Fall through to mock data
