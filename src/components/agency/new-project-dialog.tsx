@@ -172,6 +172,9 @@ export function NewProjectDialog({
         estimatedLaunchDate: estCompletion || undefined,
         totalBudget: contractValue ? parseFloat(contractValue) : undefined,
         description: internalNotes || undefined,
+        newClientName: mode === "new" ? newClientName : undefined,
+        newClientEmail: mode === "new" ? newClientEmail : undefined,
+        newClientCompany: mode === "new" ? newClientCompany : undefined,
       })
 
       setOpen(false)

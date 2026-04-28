@@ -167,6 +167,9 @@ export interface CreateProjectPayload {
   estimatedLaunchDate?: string
   totalBudget?: number
   description?: string
+  newClientName?: string
+  newClientEmail?: string
+  newClientCompany?: string
 }
 
 export function useCreateProject() {
@@ -174,10 +177,22 @@ export function useCreateProject() {
 
   return useMutation<ProjectWithDetails, Error, CreateProjectPayload>({
     mutationFn: async (payload) => {
+      // Transform camelCase to snake_case for API
+      const apiPayload = {
+        client_id: payload.clientId,
+        project_name: payload.name,
+        tier: payload.tier,
+        project_manager_id: payload.managerId,
+        estimated_completion_date: payload.estimatedLaunchDate,
+        contract_value: payload.totalBudget,
+        new_client_name: payload.newClientName,
+        new_client_email: payload.newClientEmail,
+        new_client_company: payload.newClientCompany,
+      }
       return fetchJSON<ProjectWithDetails>("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(apiPayload),
       })
     },
     onSuccess: () => {

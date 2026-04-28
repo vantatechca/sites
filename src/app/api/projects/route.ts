@@ -161,16 +161,19 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const {
-      client_id,
+      client_id: rawClientId,
       project_name,
       tier,
       start_date,
       estimated_completion_date,
       project_manager_id,
       contract_value,
+      new_client_name,
+      new_client_email,
+      new_client_company,
     } = body;
 
-    if (!client_id || !project_name || !tier) {
+    if (!rawClientId || !project_name || !tier) {
       return NextResponse.json(
         { error: "client_id, project_name, and tier are required" },
         { status: 400 }
@@ -185,14 +188,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const clientExists = await db
-      .select({ id: schema.clients.id })
-      .from(schema.clients)
-      .where(eq(schema.clients.id, client_id))
-      .limit(1);
+    let client_id = rawClientId;
 
-    if (!clientExists.length) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    // If "new" client requested, create a placeholder client record first
+    if (rawClientId === "new") {
+      if (!new_client_name || !new_client_email) {
+        return NextResponse.json(
+          { error: "New client requires name and email" },
+          { status: 400 }
+        );
+      }
+
+      // Create a user account for the client (without password — they'll register later)
+      const [newUser] = await db
+        .insert(schema.users)
+        .values({
+          name: new_client_name,
+          email: new_client_email.toLowerCase().trim(),
+          role: "client",
+          isActive: true,
+        })
+        .returning({ id: schema.users.id });
+
+      const [newClient] = await db
+        .insert(schema.clients)
+        .values({
+          userId: newUser.id,
+          companyName: new_client_company || new_client_name,
+          contactName: new_client_name,
+          contactEmail: new_client_email.toLowerCase().trim(),
+        })
+        .returning({ id: schema.clients.id });
+
+      client_id = newClient.id;
+    } else {
+      const clientExists = await db
+        .select({ id: schema.clients.id })
+        .from(schema.clients)
+        .where(eq(schema.clients.id, rawClientId))
+        .limit(1);
+
+      if (!clientExists.length) {
+        return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      }
     }
 
     const [project] = await db
