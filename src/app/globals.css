@@ -77,8 +77,14 @@
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-size: 16px;
+    line-height: 1.5;
   }
 }
 

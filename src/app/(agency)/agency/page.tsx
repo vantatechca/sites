@@ -174,7 +174,7 @@ function StatCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-[#1A1A2E] leading-none">
+            <span className="text-3xl font-bold text-[#1A1A2E] leading-none">
               {value}
             </span>
             {badge && (
@@ -191,7 +191,7 @@ function StatCard({
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">{label}</p>
+          <p className="text-sm text-muted-foreground mt-1">{label}</p>
           {trend !== undefined && (
             <div className="flex items-center gap-0.5 mt-1">
               {trend >= 0 ? (
