@@ -278,8 +278,8 @@ export default async function AgencyDashboardPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           icon={FolderKanban}
-          iconBg="#EFF6FF"
-          iconColor="#2D5A8C"
+          iconBg="#EEF2FF"
+          iconColor="#4F46E5"
           value={data.activeProjects}
           label="Active Projects"
           trend={data.trends.activeProjectsTrend}
@@ -368,7 +368,7 @@ export default async function AgencyDashboardPage() {
           <CardHeader className="pb-2 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Activity className="size-4 text-[#2D5A8C]" />
+                <Activity className="size-4 text-[#4F46E5]" />
                 <CardTitle className="text-sm font-semibold text-[#1A1A2E]">
                   Recent Activity
                 </CardTitle>
@@ -401,7 +401,7 @@ export default async function AgencyDashboardPage() {
                       <span className="text-muted-foreground">
                         {entry.action}
                       </span>{" "}
-                      <span className="font-medium text-[#2D5A8C]">
+                      <span className="font-medium text-[#4F46E5]">
                         {entry.target}
                       </span>
                     </p>
@@ -444,7 +444,7 @@ export default async function AgencyDashboardPage() {
                       <div className="min-w-0">
                         <Link
                           href={`/agency/projects/${project.id}`}
-                          className="text-xs font-semibold text-[#1A1A2E] hover:text-[#2D5A8C] transition-colors line-clamp-1"
+                          className="text-xs font-semibold text-[#1A1A2E] hover:text-[#4F46E5] transition-colors line-clamp-1"
                         >
                           {project.name}
                         </Link>
