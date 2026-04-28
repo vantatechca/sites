@@ -222,14 +222,31 @@ export async function POST(req: NextRequest) {
 
       client_id = newClient.id;
     } else {
-      const clientExists = await db
-        .select({ id: schema.clients.id })
-        .from(schema.clients)
-        .where(eq(schema.clients.id, rawClientId))
-        .limit(1);
+      // Try to validate the client_id; if invalid UUID or not found, return helpful error
+      try {
+        const clientExists = await db
+          .select({ id: schema.clients.id })
+          .from(schema.clients)
+          .where(eq(schema.clients.id, rawClientId))
+          .limit(1);
 
-      if (!clientExists.length) {
-        return NextResponse.json({ error: "Client not found" }, { status: 404 });
+        if (!clientExists.length) {
+          return NextResponse.json(
+            {
+              error:
+                "The selected client does not exist in the database. Please use the 'Create new client' option instead.",
+            },
+            { status: 404 }
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          {
+            error:
+              "Invalid client. Please use 'Create new client' to add the client first.",
+          },
+          { status: 400 }
+        );
       }
     }
 
