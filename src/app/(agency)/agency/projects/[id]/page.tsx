@@ -319,7 +319,13 @@ const handleRemoveTeamMember = (userId: string) => {
               <Pencil className="h-4 w-4 mr-1" />
               Edit Project
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setActiveTab(6)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                window.open(`/portal/${projectId}`, "_blank", "noopener,noreferrer")
+              }
+            >
               <ExternalLink className="h-4 w-4 mr-1" />
               View as Client
             </Button>
