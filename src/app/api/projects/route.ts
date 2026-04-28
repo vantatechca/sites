@@ -233,6 +233,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Verify project manager exists in DB; if not, fall back to current user
+    let validatedManagerId: string | null = null;
+    if (project_manager_id) {
+      const managerExists = await db
+        .select({ id: schema.users.id })
+        .from(schema.users)
+        .where(eq(schema.users.id, project_manager_id))
+        .limit(1);
+      if (managerExists.length) {
+        validatedManagerId = project_manager_id;
+      } else {
+        // Manager ID provided but doesn't exist (e.g., mock IDs) - assign current user
+        validatedManagerId = session.user.id;
+      }
+    } else {
+      validatedManagerId = session.user.id;
+    }
+
     const [project] = await db
       .insert(schema.projects)
       .values({
@@ -242,7 +260,7 @@ export async function POST(req: NextRequest) {
         status: "intake",
         startDate: start_date || null,
         estimatedCompletionDate: estimated_completion_date || null,
-        projectManagerId: project_manager_id || null,
+        projectManagerId: validatedManagerId,
         contractValue: contract_value ? String(contract_value) : null,
         amountRemaining: contract_value ? String(contract_value) : null,
         statusHistory: [
