@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   Dialog,
@@ -40,23 +40,7 @@ interface NewProjectDialogProps {
   trigger?: React.ReactNode
 }
 
-// ---------------------------------------------------------------------------
-// Mock options (used until API provides real data)
-// ---------------------------------------------------------------------------
-
-const MOCK_CLIENTS: ClientOption[] = [
-  { id: "cli_1", name: "Sarah Mitchell", company: "Artisan Candles Co." },
-  { id: "cli_2", name: "Marcus Chen", company: "FitGear Pro Inc." },
-  { id: "cli_3", name: "Lisa Wong", company: "PetPals LLC" },
-  { id: "cli_4", name: "David Park", company: "Urban Threads" },
-  { id: "cli_5", name: "Emma Johnson", company: "Brew Masters Inc." },
-  { id: "cli_6", name: "Tom Baker", company: "Green Earth Organics" },
-]
-
-const MOCK_MANAGERS: ManagerOption[] = [
-  { id: "usr_1", name: "Alex Rivera" },
-  { id: "usr_2", name: "Jordan Kim" },
-]
+// Mock options removed — dialog now fetches real data from /api/clients and /api/team
 
 // ---------------------------------------------------------------------------
 // Tier radio button
@@ -107,11 +91,59 @@ export function NewProjectDialog({
   const router = useRouter()
   const createProject = useCreateProject()
 
-  const clients = clientsProp ?? MOCK_CLIENTS
-  const managers = managersProp ?? MOCK_MANAGERS
+  const [fetchedClients, setFetchedClients] = useState<ClientOption[]>([])
+  const [fetchedManagers, setFetchedManagers] = useState<ManagerOption[]>([])
+
+  const clients = clientsProp ?? fetchedClients
+  const managers = managersProp ?? fetchedManagers
 
   const [open, setOpen] = useState(false)
-  const [mode, setMode] = useState<"existing" | "new">("existing")
+  const [mode, setMode] = useState<"existing" | "new">("new")
+
+  // Fetch real clients and managers when dialog opens
+  useEffect(() => {
+    if (!open) return
+
+    fetch("/api/clients")
+      .then((res) => (res.ok ? res.json() : { clients: [] }))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.clients ?? []
+        setFetchedClients(
+          list.map(
+            (c: {
+              id: string
+              contactName?: string
+              companyName?: string
+              name?: string
+              company?: string
+            }) => ({
+              id: c.id,
+              name: c.contactName ?? c.name ?? "Unknown",
+              company: c.companyName ?? c.company ?? null,
+            })
+          )
+        )
+      })
+      .catch(() => setFetchedClients([]))
+
+    fetch("/api/team")
+      .then((res) => (res.ok ? res.json() : { team: [] }))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.team ?? data.users ?? []
+        setFetchedManagers(
+          list
+            .filter(
+              (u: { role?: string }) =>
+                u.role === "admin" || u.role === "manager" || u.role === "team_member"
+            )
+            .map((u: { id: string; name: string }) => ({
+              id: u.id,
+              name: u.name,
+            }))
+        )
+      })
+      .catch(() => setFetchedManagers([]))
+  }, [open])
 
   // Form state
   const [clientId, setClientId] = useState("")
