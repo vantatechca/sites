@@ -256,12 +256,22 @@ export default async function AgencyDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-xl font-bold text-[#1A1A2E]">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Agency overview and project health at a glance.
-        </p>
+      {/* Hero banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 p-6 shadow-lg">
+        <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-12 -left-8 size-44 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+            <TrendingUp className="h-3 w-3" />
+            Agency Overview
+          </div>
+          <h1 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            Welcome back!
+          </h1>
+          <p className="mt-1 text-sm text-white/80">
+            Here&apos;s what&apos;s happening with your projects today.
+          </p>
+        </div>
       </div>
 
       {/* Top row - 4 cards */}
