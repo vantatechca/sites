@@ -48,7 +48,7 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-white/10 bg-[#1A1A2E] transition-all duration-300",
+        "flex h-screen flex-col border-r border-white/10 bg-[#1E1B4B] transition-all duration-300",
         collapsed ? "w-[68px]" : "w-[260px]"
       )}
     >
