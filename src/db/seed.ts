@@ -48,7 +48,7 @@ async function seed() {
     .values({
       email: "admin@siteforge.com",
       name: "SiteForge Admin",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: hashSync("Admin@SiteForge2026", 12),
       role: "admin",
       department: "project_management",
       specialization: "Platform Administration",
@@ -67,7 +67,7 @@ async function seed() {
     .values({
       email: "sarah@siteforge.com",
       name: "Sarah Chen",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: hashSync("Admin@SiteForge2026", 12),
       role: "manager",
       department: "design",
       specialization: "UI/UX Design Lead",
@@ -83,7 +83,7 @@ async function seed() {
     .values({
       email: "marcus@siteforge.com",
       name: "Marcus Johnson",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: hashSync("Admin@SiteForge2026", 12),
       role: "manager",
       department: "development",
       specialization: "Shopify Development Lead",
@@ -99,7 +99,7 @@ async function seed() {
     .values({
       email: "emma@siteforge.com",
       name: "Emma Williams",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: hashSync("Admin@SiteForge2026", 12),
       role: "team_member",
       department: "content",
       specialization: "Copywriting & SEO",
@@ -115,7 +115,7 @@ async function seed() {
     .values({
       email: "james@siteforge.com",
       name: "James Park",
-      passwordHash: hashSync("password123", 12),
+      passwordHash: hashSync("Admin@SiteForge2026", 12),
       role: "team_member",
       department: "qa",
       specialization: "Quality Assurance & Testing",
