@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 
@@ -44,19 +44,24 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await hash(password, 12);
 
+    // Option B: First user becomes admin, all subsequent signups are clients
+    const [{ total }] = await db.select({ total: count() }).from(users);
+    const role = total === 0 ? "admin" : "client";
+
     const [newUser] = await db
       .insert(users)
       .values({
         name: name.trim(),
         email: normalizedEmail,
         passwordHash,
-        role: "client",
+        role,
         isActive: true,
       })
       .returning({
         id: users.id,
         name: users.name,
         email: users.email,
+        role: users.role,
       });
 
     return NextResponse.json(
