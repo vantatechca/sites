@@ -234,21 +234,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify project manager exists in DB; if not, fall back to current user
-    let validatedManagerId: string | null = null;
+    let validatedManagerId: string = session.user.id;
     if (project_manager_id) {
-      const managerExists = await db
-        .select({ id: schema.users.id })
-        .from(schema.users)
-        .where(eq(schema.users.id, project_manager_id))
-        .limit(1);
-      if (managerExists.length) {
-        validatedManagerId = project_manager_id;
-      } else {
-        // Manager ID provided but doesn't exist (e.g., mock IDs) - assign current user
-        validatedManagerId = session.user.id;
+      try {
+        const managerExists = await db
+          .select({ id: schema.users.id })
+          .from(schema.users)
+          .where(eq(schema.users.id, project_manager_id))
+          .limit(1);
+        if (managerExists.length) {
+          validatedManagerId = project_manager_id;
+        }
+      } catch {
+        // Invalid UUID format or DB error - keep fallback to current user
       }
-    } else {
-      validatedManagerId = session.user.id;
     }
 
     const [project] = await db
