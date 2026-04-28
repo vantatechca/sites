@@ -164,8 +164,8 @@ function StatCard({
   badge?: { text: string; variant: "danger" | "warning" | "success" }
 }) {
   return (
-    <Card className="relative overflow-hidden">
-      <CardContent className="flex items-start gap-4 py-1">
+    <Card className="group relative overflow-hidden border-white/60 bg-white/80 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-3 py-3">
         <div
           className="flex size-11 shrink-0 items-center justify-center rounded-xl"
           style={{ backgroundColor: iconBg }}
@@ -275,7 +275,7 @@ export default async function AgencyDashboardPage() {
       </div>
 
       {/* Top row - 4 cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           icon={FolderKanban}
           iconBg="#EFF6FF"
@@ -316,7 +316,7 @@ export default async function AgencyDashboardPage() {
       </div>
 
       {/* Second row - 4 cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           icon={Mail}
           iconBg={data.unreadMessages > 0 ? "#FEF2F2" : "#F1F5F9"}
