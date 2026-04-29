@@ -164,7 +164,19 @@ export default function ProjectDashboardPage() {
 
         if (!projRes.ok) throw new Error("API unavailable");
         const projData = await projRes.json();
-        setProject(projData);
+
+        // Map API response (projectName) to expected shape (name)
+        const raw = projData.project ?? projData;
+        const safeProgress = Number(raw.progressPercent);
+        setProject({
+          id: raw.id,
+          name: raw.projectName ?? raw.name ?? "Untitled Project",
+          status: raw.status ?? "intake",
+          progressPercent: Number.isFinite(safeProgress) ? safeProgress : 0,
+          estimatedLaunchDate: raw.estimatedLaunchDate ?? null,
+          currentPhase: raw.currentPhase ?? null,
+          createdAt: raw.createdAt ?? new Date().toISOString(),
+        });
 
         if (tasksRes.ok) {
           const tasksData = await tasksRes.json();
@@ -178,47 +190,7 @@ export default function ProjectDashboardPage() {
           }
         }
       } catch {
-        // Demo mode: provide mock data
-        const mockProjects: Record<string, ProjectData> = {
-          proj_1: {
-            id: "proj_1",
-            name: "Artisan Candles Store",
-            status: "design" as ProjectStatus,
-            progressPercent: 35,
-            estimatedLaunchDate: new Date(Date.now() + 30 * 86400000).toISOString(),
-            currentPhase: "design",
-            createdAt: new Date(Date.now() - 45 * 86400000).toISOString(),
-          },
-          proj_2: {
-            id: "proj_2",
-            name: "FitGear Pro Relaunch",
-            status: "development" as ProjectStatus,
-            progressPercent: 62,
-            estimatedLaunchDate: new Date(Date.now() + 14 * 86400000).toISOString(),
-            currentPhase: "development",
-            createdAt: new Date(Date.now() - 90 * 86400000).toISOString(),
-          },
-        };
-        const mockTasks: TaskData[] = [
-          { id: "t1", phaseKey: "intake", taskKey: "kickoff", title: "Project kickoff call", status: "completed" as TaskStatus, dueDate: null, completedAt: new Date(Date.now() - 40 * 86400000).toISOString() },
-          { id: "t2", phaseKey: "intake", taskKey: "access", title: "Gather store access credentials", status: "completed" as TaskStatus, dueDate: null, completedAt: new Date(Date.now() - 38 * 86400000).toISOString() },
-          { id: "t3", phaseKey: "requirements", taskKey: "brand_guide", title: "Brand guidelines review", status: "completed" as TaskStatus, dueDate: null, completedAt: new Date(Date.now() - 30 * 86400000).toISOString() },
-          { id: "t4", phaseKey: "design", taskKey: "homepage", title: "Homepage design mockup", status: "in_progress" as TaskStatus, dueDate: new Date(Date.now() + 5 * 86400000).toISOString(), completedAt: null },
-          { id: "t5", phaseKey: "design", taskKey: "product_page", title: "Product page template design", status: "not_started" as TaskStatus, dueDate: new Date(Date.now() + 10 * 86400000).toISOString(), completedAt: null },
-          { id: "t6", phaseKey: "development", taskKey: "theme_setup", title: "Theme setup & configuration", status: "not_started" as TaskStatus, dueDate: null, completedAt: null },
-          { id: "t7", phaseKey: "content", taskKey: "copy_review", title: "Content & copy review", status: "not_started" as TaskStatus, dueDate: null, completedAt: null },
-        ];
-        setProject(mockProjects[projectId] || mockProjects.proj_1);
-        setTasks(mockTasks);
-        setPhases([
-          { key: "intake", title: "Project Setup", client_label: "Getting Started", sortOrder: 0 },
-          { key: "requirements", title: "Requirements", client_label: "Planning", sortOrder: 1 },
-          { key: "design", title: "Design", client_label: "Design Phase", sortOrder: 2 },
-          { key: "development", title: "Development", client_label: "Building Your Store", sortOrder: 3 },
-          { key: "content", title: "Content", client_label: "Content & Copy", sortOrder: 4 },
-          { key: "final_qa", title: "Quality Assurance", client_label: "Final Review", sortOrder: 5 },
-          { key: "launch_prep", title: "Launch Prep", client_label: "Ready to Launch", sortOrder: 6 },
-        ]);
+        // No mock fallback — page will show "Project not found" empty state
       } finally {
         setIsLoading(false);
       }
@@ -425,25 +397,25 @@ export default function ProjectDashboardPage() {
 
         <div className="relative grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-medium backdrop-blur-sm">
-              <Sparkles className="h-3 w-3" />
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-medium backdrop-blur-sm">
+              <Sparkles className="h-3.5 w-3.5" />
               {PROJECT_STATUS_MAP[project.status]}
             </div>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight">
+            <h1 className="mt-3 text-4xl font-bold tracking-tight">
               {project.name}
             </h1>
-            <p className="mt-1.5 text-sm text-white/80">
+            <p className="mt-2 text-base text-white/85">
               {MOTIVATIONAL_MESSAGES[project.status] ||
                 "Your project is underway!"}
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-4 text-xs">
+            <div className="mt-5 flex flex-wrap items-center gap-5 text-sm">
               <div className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" />
+                <Clock className="h-4 w-4" />
                 <span className="text-white/70">Est. launch:</span>
                 <span className="font-semibold">{stats.estCompletion}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5" />
+                <CheckCircle2 className="h-4 w-4" />
                 <span className="text-white/70">Milestones:</span>
                 <span className="font-semibold">
                   {stats.completedMilestones}/{milestones.length}
