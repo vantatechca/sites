@@ -226,11 +226,14 @@ export function usePipelineProjects(filters?: {
         if (filters?.managerId && filters.managerId !== "all")
           qs.set("managerId", filters.managerId)
         const qsStr = qs.toString()
-        return await fetchJSON<PipelineGroup[]>(
-          `/api/projects/pipeline${qsStr ? `?${qsStr}` : ""}`
-        )
+        const data = await fetchJSON<
+          PipelineGroup[] | { groups?: PipelineGroup[] }
+        >(`/api/projects/pipeline${qsStr ? `?${qsStr}` : ""}`)
+        if (Array.isArray(data)) return data
+        return data.groups ?? []
       } catch {
-        return getMockPipelineGroups()
+        // No mock fallback — return empty pipeline
+        return []
       }
     },
     staleTime: 15_000,

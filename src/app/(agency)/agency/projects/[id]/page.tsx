@@ -188,14 +188,18 @@ export default function ProjectDetailPage() {
       }
     )
   }
-const getCurrentMembers = () =>{
+const getCurrentMembers = (): Array<{ userId: string; role: string; department?: string }> => {
   if (localMembers !== null) return localMembers
   if (!project) return []
-  return ((project as unknown as Record<string, unknown>)).teamMembers as Array<{
-    userId: string
-    role: string
-    department?: string
-  }> ?? []
+  const raw = (project as unknown as Record<string, unknown>).teamMembers
+  if (!Array.isArray(raw)) return []
+  return raw.filter(
+    (m): m is { userId: string; role: string; department?: string } =>
+      typeof m === "object" &&
+      m !== null &&
+      typeof (m as { userId?: unknown }).userId === "string" &&
+      typeof (m as { role?: unknown }).role === "string"
+  )
 }
 
 const handleAddTeamMember = (userId: string, role: string) => {
@@ -256,13 +260,7 @@ const handleRemoveTeamMember = (userId: string) => {
   const manager = proj.manager as Record<string, unknown> | undefined
   const managerName = (manager?.name as string) ?? "Unassigned"
   const managerAvatar = manager?.avatarUrl as string | null
-  const projectMembers = localMembers !== null
-    ? localMembers
-    : (proj.teamMembers as Array<{
-      userId: string
-      role:string
-      department?: string
-    }>) ?? []
+  const projectMembers = getCurrentMembers()
 
   const days = daysInStage(updatedAt)
   const priorityInfo = getPriorityLabel(priority)

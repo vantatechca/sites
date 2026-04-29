@@ -168,6 +168,19 @@ export default function ProjectDashboardPage() {
         // Map API response (projectName) to expected shape (name)
         const raw = projData.project ?? projData;
         const safeProgress = Number(raw.progressPercent);
+        // Validate createdAt is a real date; fall back only if missing or invalid
+        const parsedCreatedAt = raw.createdAt
+          ? new Date(raw.createdAt)
+          : null;
+        const createdAt =
+          parsedCreatedAt && !isNaN(parsedCreatedAt.getTime())
+            ? parsedCreatedAt.toISOString()
+            : new Date().toISOString();
+        if (!raw.createdAt) {
+          console.warn(
+            `Project ${raw.id} is missing createdAt; falling back to current time`
+          );
+        }
         setProject({
           id: raw.id,
           name: raw.projectName ?? raw.name ?? "Untitled Project",
@@ -175,7 +188,7 @@ export default function ProjectDashboardPage() {
           progressPercent: Number.isFinite(safeProgress) ? safeProgress : 0,
           estimatedLaunchDate: raw.estimatedLaunchDate ?? null,
           currentPhase: raw.currentPhase ?? null,
-          createdAt: raw.createdAt ?? new Date().toISOString(),
+          createdAt,
         });
 
         if (tasksRes.ok) {

@@ -102,12 +102,13 @@ export function useTasks(projectId: string) {
     queryKey: taskKeys.byPhase(projectId),
     queryFn: async () => {
       try {
-        const data = await fetchJSON<{ tasksByPhase: TasksByPhase }>(
+        const data = await fetchJSON<{ tasksByPhase?: TasksByPhase }>(
           `/api/projects/${projectId}/tasks`
         )
-        return data.tasksByPhase
+        return data?.tasksByPhase ?? {}
       } catch {
-        return getMockTasksByPhase()
+        // No mock fallback — return empty grouping
+        return {}
       }
     },
     enabled: !!projectId,

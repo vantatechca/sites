@@ -85,7 +85,8 @@ export function useMessages(
           `/api/projects/${projectId}/messages?${params.toString()}`
         )
       } catch {
-        return getMockMessages(threadType)
+        // No mock fallback — return empty list shaped like MessagesResponse
+        return { messages: [], total: 0, page: 1, limit: 20, totalPages: 0 }
       }
     },
     enabled: !!projectId,
