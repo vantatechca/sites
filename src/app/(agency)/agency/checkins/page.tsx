@@ -95,13 +95,13 @@ export default function CheckinsPage() {
             Track daily progress across the team
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm">
           <CalendarDays className="size-4 text-muted-foreground" />
-          <Input
+          <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-40"
+            className="w-36 bg-transparent text-sm text-gray-900 outline-none focus:outline-none"
           />
         </div>
       </div>
