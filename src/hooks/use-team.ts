@@ -227,23 +227,15 @@ export function useTeam(filters: TeamFilters = {}) {
         if (filters.department && filters.department !== "all")
           params.set("department", filters.department)
         const qs = params.toString()
-        return await fetchJSON<TeamMemberStats[]>(
+        const data = await fetchJSON<TeamMemberStats[] | { team?: TeamMemberStats[]; users?: TeamMemberStats[] }>(
           `/api/team${qs ? `?${qs}` : ""}`
         )
+        // API may return either an array or an envelope { team: [...] }
+        if (Array.isArray(data)) return data
+        return data.team ?? data.users ?? []
       } catch {
-        let members = getMockTeamMembers()
-        if (filters.department && filters.department !== "all") {
-          members = members.filter((m) => m.department === filters.department)
-        }
-        if (filters.search) {
-          const q = filters.search.toLowerCase()
-          members = members.filter(
-            (m) =>
-              m.name.toLowerCase().includes(q) ||
-              (m.specialization ?? "").toLowerCase().includes(q)
-          )
-        }
-        return members
+        // No mock fallback — return empty list
+        return []
       }
     },
     staleTime: 30_000,
