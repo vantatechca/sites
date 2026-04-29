@@ -515,7 +515,7 @@ export default function ProjectsPage() {
                   </TableCell>
                   <TableCell>
                     <span className="text-muted-foreground">
-                      {project.client.company ?? project.client.name}
+                      {project.client?.company ?? project.client?.name ?? "Unknown"}
                     </span>
                   </TableCell>
                   <TableCell>

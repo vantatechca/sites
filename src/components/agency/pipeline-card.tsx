@@ -104,7 +104,7 @@ export function PipelineCard({
 
         <div className="flex-1 min-w-0">
           <p className="text-[11px] text-muted-foreground truncate">
-            {project.client.company ?? project.client.name}
+            {project.client?.company ?? project.client?.name ?? "Unknown client"}
           </p>
           <h4 className="text-xs font-semibold text-[#1A1A2E] leading-tight line-clamp-2 mt-0.5">
             {project.name}
@@ -150,16 +150,16 @@ export function PipelineCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Avatar size="sm">
-            {project.manager.avatarUrl && (
+            {project.manager?.avatarUrl && (
               <AvatarImage
                 src={project.manager.avatarUrl}
-                alt={project.manager.name}
+                alt={project.manager?.name ?? "Manager"}
               />
             )}
-            <AvatarFallback>{initials(project.manager.name)}</AvatarFallback>
+            <AvatarFallback>{initials(project.manager?.name ?? "?")}</AvatarFallback>
           </Avatar>
           <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">
-            {project.manager.name}
+            {project.manager?.name ?? "Unassigned"}
           </span>
         </div>
 
