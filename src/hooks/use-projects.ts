@@ -189,11 +189,18 @@ export function useCreateProject() {
         new_client_email: payload.newClientEmail,
         new_client_company: payload.newClientCompany,
       }
-      return fetchJSON<ProjectWithDetails>("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(apiPayload),
-      })
+      const response = await fetchJSON<{ project: ProjectWithDetails } | ProjectWithDetails>(
+        "/api/projects",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(apiPayload),
+        }
+      )
+      // API returns { project: {...}, tasksCreated: N } — unwrap it
+      return "project" in response
+        ? (response as { project: ProjectWithDetails }).project
+        : (response as ProjectWithDetails)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() })

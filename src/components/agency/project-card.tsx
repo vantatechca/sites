@@ -112,7 +112,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <CardContent className="space-y-3 pt-1">
           {/* Client name */}
           <p className="text-xs text-muted-foreground font-medium truncate pr-6">
-            {project.client.company ?? project.client.name}
+            {project.client?.company ?? project.client?.name ?? "Unknown client"}
           </p>
 
           {/* Project name */}
@@ -162,13 +162,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <div className="flex items-center justify-between pt-1 border-t border-gray-50">
             <div className="flex items-center gap-1.5">
               <Avatar size="sm">
-                {project.manager.avatarUrl && (
-                  <AvatarImage src={project.manager.avatarUrl} alt={project.manager.name} />
+                {project.manager?.avatarUrl && (
+                  <AvatarImage src={project.manager.avatarUrl} alt={project.manager?.name ?? "Manager"} />
                 )}
-                <AvatarFallback>{initials(project.manager.name)}</AvatarFallback>
+                <AvatarFallback>{initials(project.manager?.name ?? "?")}</AvatarFallback>
               </Avatar>
               <span className="text-xs text-muted-foreground truncate max-w-[100px]">
-                {project.manager.name}
+                {project.manager?.name ?? "Unassigned"}
               </span>
             </div>
 

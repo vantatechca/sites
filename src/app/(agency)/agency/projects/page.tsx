@@ -288,6 +288,7 @@ export default function ProjectsPage() {
   const managerOptions = useMemo(() => {
     const seen = new Map<string, string>()
     projects.forEach((p) => {
+      if (!p.managerId || !p.manager?.name) return
       if (!seen.has(p.managerId)) {
         seen.set(p.managerId, p.manager.name)
       }
