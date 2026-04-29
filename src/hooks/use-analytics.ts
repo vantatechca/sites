@@ -359,16 +359,42 @@ function getMockAnalytics(dateRange: string = "30d"): AnalyticsData {
 // useAnalytics - fetch all analytics data
 // ---------------------------------------------------------------------------
 
+function getEmptyAnalytics(): AnalyticsData {
+  return {
+    metrics: {
+      totalProjects: { label: "Total Projects", value: 0, change: null },
+      avgBuildTime: { label: "Avg Build Time", value: "0 days", change: null },
+      revenue: { label: "Revenue", value: "$0", change: null },
+      clientSatisfaction: { label: "Client Satisfaction", value: "—", change: null },
+    },
+    pipelineDistribution: [],
+    stageTime: [],
+    teamPerformance: [],
+    revenue: [],
+    tierComparison: [],
+    atRiskProjects: [],
+    clientEngagement: {
+      averageResponseTimeHours: 0,
+      approvalRatePercent: 0,
+      communicationFrequency: [],
+    },
+  }
+}
+
 export function useAnalytics(dateRange: string = "30d") {
   return useQuery<AnalyticsData>({
     queryKey: analyticsKeys.data(dateRange),
     queryFn: async () => {
       try {
-        return await fetchJSON<AnalyticsData>(
+        const data = await fetchJSON<AnalyticsData>(
           `/api/analytics?range=${dateRange}`
         )
+        // Ensure all required keys exist even if API returns partial data
+        if (!data || !data.metrics) return getEmptyAnalytics()
+        return data
       } catch {
-        return getMockAnalytics(dateRange)
+        // No mock fallback — return safe empty structure
+        return getEmptyAnalytics()
       }
     },
     staleTime: 60_000,
