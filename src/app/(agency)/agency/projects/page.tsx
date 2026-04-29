@@ -556,18 +556,18 @@ export default function ProjectsPage() {
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       <Avatar size="sm">
-                        {project.manager.avatarUrl && (
+                        {project.manager?.avatarUrl && (
                           <AvatarImage
                             src={project.manager.avatarUrl}
-                            alt={project.manager.name}
+                            alt={project.manager?.name ?? "Manager"}
                           />
                         )}
                         <AvatarFallback>
-                          {initials(project.manager.name)}
+                          {initials(project.manager?.name ?? "?")}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-xs text-muted-foreground">
-                        {project.manager.name}
+                        {project.manager?.name ?? "Unassigned"}
                       </span>
                     </div>
                   </TableCell>
