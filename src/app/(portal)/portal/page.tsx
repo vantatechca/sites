@@ -60,25 +60,8 @@ export default function PortalPage() {
           return;
         }
       } catch {
-        // In demo mode, provide mock projects
-        setProjects([
-          {
-            id: "proj_1",
-            name: "Artisan Candles Store",
-            status: "design" as ProjectStatus,
-            progressPercent: 35,
-            description: "Full redesign of e-commerce storefront",
-            estimatedLaunchDate: new Date(Date.now() + 30 * 86400000).toISOString(),
-          },
-          {
-            id: "proj_2",
-            name: "FitGear Pro Relaunch",
-            status: "development" as ProjectStatus,
-            progressPercent: 62,
-            description: "Complete platform migration and redesign",
-            estimatedLaunchDate: new Date(Date.now() + 14 * 86400000).toISOString(),
-          },
-        ]);
+        // No mock fallback — empty state will render
+        setProjects([]);
       } finally {
         setIsLoading(false);
       }

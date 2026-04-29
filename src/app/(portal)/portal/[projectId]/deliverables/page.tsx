@@ -100,47 +100,8 @@ export default function DeliverablesPage() {
         : data.deliverables || [];
       setDeliverables(list);
     } catch {
-      // Demo mode: mock deliverables
-      setDeliverables([
-        {
-          id: "del_1",
-          title: "Homepage Design Mockup v1",
-          description: "Initial homepage design concept based on brand guidelines.",
-          type: "screenshot" as DeliverableType,
-          isApproved: false,
-          createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-          comments: [
-            { id: "c1", content: "Looking great! Love the color palette.", senderName: "Demo Client", senderRole: "client" as const, createdAt: new Date(Date.now() - 1 * 86400000).toISOString() },
-          ],
-          fileUrl: null,
-          previewUrl: null,
-          version: 1,
-        },
-        {
-          id: "del_2",
-          title: "Brand Guidelines Document",
-          description: "Complete brand identity guide with logos, colors, and typography.",
-          type: "file" as DeliverableType,
-          isApproved: true,
-          createdAt: new Date(Date.now() - 10 * 86400000).toISOString(),
-          comments: [],
-          fileUrl: null,
-          previewUrl: null,
-          version: 1,
-        },
-        {
-          id: "del_3",
-          title: "Development Preview Link",
-          description: "Live preview of the store in development. Password: preview2024",
-          type: "live_preview_link" as DeliverableType,
-          isApproved: false,
-          createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-          comments: [],
-          fileUrl: null,
-          previewUrl: null,
-          version: 1,
-        },
-      ]);
+      // No mock fallback — show empty deliverables
+      setDeliverables([]);
     } finally {
       setIsLoading(false);
     }

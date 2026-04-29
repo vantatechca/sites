@@ -147,63 +147,8 @@ export default function InvoicesPage() {
           : data.invoices || [];
         setInvoices(list);
       } catch {
-        // Demo mode: mock invoices
-        setInvoices([
-          {
-            id: "inv_1",
-            invoiceNumber: "INV-2024-001",
-            status: "paid" as InvoiceStatus,
-            amount: 3000,
-            currency: "USD",
-            description: "Project kickoff & discovery phase",
-            lineItems: [
-              { description: "Discovery & requirements gathering", quantity: 1, unitPrice: 2000, total: 2000 },
-              { description: "Project setup & configuration", quantity: 1, unitPrice: 1000, total: 1000 },
-            ],
-            dueDate: new Date(Date.now() - 20 * 86400000).toISOString(),
-            sentAt: new Date(Date.now() - 30 * 86400000).toISOString(),
-            viewedAt: new Date(Date.now() - 28 * 86400000).toISOString(),
-            paidAt: new Date(Date.now() - 18 * 86400000).toISOString(),
-            stripeInvoiceUrl: null,
-            milestoneLabel: "Phase 1: Setup",
-          },
-          {
-            id: "inv_2",
-            invoiceNumber: "INV-2024-002",
-            status: "sent" as InvoiceStatus,
-            amount: 4500,
-            currency: "USD",
-            description: "Design phase - homepage & product pages",
-            lineItems: [
-              { description: "Homepage design & mockups", quantity: 1, unitPrice: 2500, total: 2500 },
-              { description: "Product page templates", quantity: 1, unitPrice: 2000, total: 2000 },
-            ],
-            dueDate: new Date(Date.now() + 10 * 86400000).toISOString(),
-            sentAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-            viewedAt: null,
-            paidAt: null,
-            stripeInvoiceUrl: null,
-            milestoneLabel: "Phase 2: Design",
-          },
-          {
-            id: "inv_3",
-            invoiceNumber: "INV-2024-003",
-            status: "draft" as InvoiceStatus,
-            amount: 4500,
-            currency: "USD",
-            description: "Development phase",
-            lineItems: [
-              { description: "Theme development", quantity: 1, unitPrice: 3000, total: 3000 },
-              { description: "App integrations", quantity: 1, unitPrice: 1500, total: 1500 },
-            ],
-            dueDate: new Date(Date.now() + 30 * 86400000).toISOString(),
-            sentAt: null,
-            viewedAt: null,
-            paidAt: null,
-            stripeInvoiceUrl: null,
-            milestoneLabel: "Phase 3: Development",
-          },
-        ]);
+        // No mock fallback — show empty invoices
+        setInvoices([]);
       } finally {
         setIsLoading(false);
       }

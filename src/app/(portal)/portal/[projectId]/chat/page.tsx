@@ -47,60 +47,7 @@ export default function ChatPage() {
       setMessages(list);
       if (data.currentUserId) setCurrentUserId(data.currentUserId);
     } catch {
-      setCurrentUserId((prev) => prev || "demo-client");
-      setMessages((prev) => {
-        if (prev.length > 0) return prev;
-        return [
-          {
-            id: "msg_1",
-            threadId: "general",
-            content: "Hi! Welcome to your project. We're excited to get started on your new Shopify store.",
-            senderId: "usr_1",
-            senderRole: "agency" as const,
-            createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-          },
-          {
-            id: "msg_2",
-            threadId: "general",
-            content: "Thanks so much! I've been looking forward to this.",
-            senderId: "demo-client",
-            senderRole: "client" as const,
-            createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-          },
-          {
-            id: "msg_3",
-            threadId: "design",
-            content: "We've drafted the homepage mockup. What do you think of the hero section?",
-            senderId: "usr_1",
-            senderRole: "agency" as const,
-            createdAt: new Date(Date.now() - 1.5 * 86400000).toISOString(),
-          },
-          {
-            id: "msg_4",
-            threadId: "design",
-            content: "Love it! Can we try a darker blue for the CTA button?",
-            senderId: "demo-client",
-            senderRole: "client" as const,
-            createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-          },
-          {
-            id: "msg_5",
-            threadId: "development",
-            content: "The theme is set up. We'll start building product pages tomorrow.",
-            senderId: "usr_1",
-            senderRole: "agency" as const,
-            createdAt: new Date(Date.now() - 0.5 * 86400000).toISOString(),
-          },
-          {
-            id: "msg_6",
-            threadId: "invoices",
-            content: "Invoice #INV-2024-002 has been sent for the design phase.",
-            senderId: "usr_1",
-            senderRole: "agency" as const,
-            createdAt: new Date(Date.now() - 0.2 * 86400000).toISOString(),
-          },
-        ];
-      });
+      // No mock fallback — show empty threads
     } finally {
       setIsLoading(false);
     }
