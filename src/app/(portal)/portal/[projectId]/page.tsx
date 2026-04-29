@@ -329,22 +329,33 @@ export default function ProjectDashboardPage() {
   // Derive gantt data
   const ganttPhases = useMemo((): GanttPhase[] => {
     if (!project || phases.length === 0) {
-      // Estimate from project dates
       if (!project) return [];
-      const projectStartDate = project.createdAt;
-      const endDate = project.estimatedLaunchDate || project.createdAt;
+
+      // Safely parse dates with fallbacks
+      const now = new Date();
+      const startMs = project.createdAt
+        ? new Date(project.createdAt).getTime()
+        : now.getTime();
+      const endMs = project.estimatedLaunchDate
+        ? new Date(project.estimatedLaunchDate).getTime()
+        : startMs + 90 * 86400000; // default 90 days from start
+
+      // Guard against NaN dates
+      if (isNaN(startMs) || isNaN(endMs)) return [];
+
+      const safeStartMs = startMs;
+      const safeEndMs = endMs > startMs ? endMs : startMs + 90 * 86400000;
+
       const currentIndex = PROJECT_STATUS_ORDER.indexOf(project.status);
       const totalPhases = PROJECT_STATUS_ORDER.filter(
         (s) => s !== "on_hold"
       ).length;
-      const startMs = new Date(projectStartDate).getTime();
-      const endMs = new Date(endDate).getTime();
-      const phaseDuration = (endMs - startMs) / totalPhases;
+      const phaseDuration = (safeEndMs - safeStartMs) / totalPhases;
 
       return PROJECT_STATUS_ORDER.filter((s) => s !== "on_hold").map(
         (status, i) => {
-          const phaseStart = new Date(startMs + i * phaseDuration);
-          const phaseEnd = new Date(startMs + (i + 1) * phaseDuration);
+          const phaseStart = new Date(safeStartMs + i * phaseDuration);
+          const phaseEnd = new Date(safeStartMs + (i + 1) * phaseDuration);
           const phaseIndex = i;
 
           return {
