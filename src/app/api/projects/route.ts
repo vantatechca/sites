@@ -290,71 +290,76 @@ export async function POST(req: NextRequest) {
       })
       .returning();
 
-    const activeTemplate = await db
-      .select()
-      .from(schema.checklistTemplates)
-      .where(eq(schema.checklistTemplates.isActive, true))
-      .orderBy(desc(schema.checklistTemplates.version))
-      .limit(1);
-
     let tasksCreated = 0;
 
-    if (activeTemplate.length > 0 && activeTemplate[0].phases) {
-      const template = activeTemplate[0];
-      const taskInserts: (typeof schema.projectTasks.$inferInsert)[] = [];
+    // Optional: seed tasks from active checklist template (non-fatal)
+    try {
+      const activeTemplate = await db
+        .select()
+        .from(schema.checklistTemplates)
+        .where(eq(schema.checklistTemplates.isActive, true))
+        .orderBy(desc(schema.checklistTemplates.version))
+        .limit(1);
 
-      for (const phase of template.phases) {
-        let taskSortOrder = 0;
-        for (const task of phase.tasks) {
-          const tierKey = tier as keyof typeof task.tierApplicable;
-          if (!task.tierApplicable[tierKey]) {
-            continue;
+      if (activeTemplate.length > 0 && activeTemplate[0].phases) {
+        const template = activeTemplate[0];
+        const taskInserts: (typeof schema.projectTasks.$inferInsert)[] = [];
+
+        for (const phase of template.phases) {
+          let taskSortOrder = 0;
+          for (const task of phase.tasks) {
+            const tierKey = tier as keyof typeof task.tierApplicable;
+            if (!task.tierApplicable[tierKey]) continue;
+
+            taskInserts.push({
+              projectId: project.id,
+              templateTaskId: `${template.id}:${phase.name}:${task.name}`,
+              phaseName: phase.name,
+              name: task.name,
+              description: task.description || null,
+              status: "not_started",
+              estimatedHours: task.estimatedHours
+                ? String(task.estimatedHours)
+                : null,
+              isMilestone: task.isMilestone,
+              clientVisible: task.clientVisible,
+              clientLabel: task.clientLabel || null,
+              tierApplicable: true,
+              sortOrder: phase.sortOrder * 1000 + taskSortOrder,
+            });
+
+            taskSortOrder++;
           }
+        }
 
-          taskInserts.push({
-            projectId: project.id,
-            templateTaskId: `${template.id}:${phase.name}:${task.name}`,
-            phaseName: phase.name,
-            name: task.name,
-            description: task.description || null,
-            status: "not_started",
-            estimatedHours: task.estimatedHours
-              ? String(task.estimatedHours)
-              : null,
-            isMilestone: task.isMilestone,
-            clientVisible: task.clientVisible,
-            clientLabel: task.clientLabel || null,
-            tierApplicable: true,
-            sortOrder: phase.sortOrder * 1000 + taskSortOrder,
-          });
-
-          taskSortOrder++;
+        if (taskInserts.length > 0) {
+          await db.insert(schema.projectTasks).values(taskInserts);
+          tasksCreated = taskInserts.length;
         }
       }
-
-      if (taskInserts.length > 0) {
-        await db.insert(schema.projectTasks).values(taskInserts);
-        tasksCreated = taskInserts.length;
-      }
+    } catch (templateError) {
+      console.warn("Skipped task seeding from template:", templateError);
     }
 
-    await db.insert(schema.activityLog).values({
-      projectId: project.id,
-      userId: session.user.id,
-      action: "project_created",
-      entityType: "project",
-      entityId: project.id,
-      metadata: {
-        projectName: project_name,
-        tier,
-        tasksCreated,
-      },
-    });
+    // Optional: log activity (non-fatal)
+    try {
+      await db.insert(schema.activityLog).values({
+        projectId: project.id,
+        userId: session.user.id,
+        action: "project_created",
+        entityType: "project",
+        entityId: project.id,
+        metadata: {
+          projectName: project_name,
+          tier,
+          tasksCreated,
+        },
+      });
+    } catch (logError) {
+      console.warn("Skipped activity log:", logError);
+    }
 
-    return NextResponse.json(
-      { project, tasksCreated },
-      { status: 201 }
-    );
+    return NextResponse.json({ project, tasksCreated }, { status: 201 });
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Internal server error";
