@@ -283,13 +283,14 @@ export function useCheckins(date: string, userId?: string) {
       try {
         const params = new URLSearchParams({ date })
         if (userId) params.set("userId", userId)
-        return await fetchJSON<CheckinEntry[]>(`/api/checkins?${params}`)
+        const data = await fetchJSON<
+          CheckinEntry[] | { checkins?: CheckinEntry[] }
+        >(`/api/checkins?${params}`)
+        if (Array.isArray(data)) return data
+        return data.checkins ?? []
       } catch {
-        let checkins = getMockCheckins(date)
-        if (userId) {
-          checkins = checkins.filter((c) => c.userId === userId)
-        }
-        return checkins
+        // No mock fallback — return empty list
+        return []
       }
     },
     staleTime: 30_000,
