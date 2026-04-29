@@ -275,11 +275,12 @@ export function BrandingSettings() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      await fetch("/api/settings/branding", {
+      const res = await fetch("/api/settings/branding", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       })
+      if (!res.ok) throw new Error("Save failed")
       toast.success("Branding settings saved")
     } catch {
       toast.error("Failed to save branding settings")

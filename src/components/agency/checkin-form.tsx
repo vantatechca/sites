@@ -15,6 +15,7 @@ import {
   ThumbsUp,
   Pencil,
 } from "lucide-react"
+import { toast } from "sonner"
 import { useMyProjectContext, useSubmitCheckin } from "@/hooks/use-checkins"
 import type { CheckinResult } from "@/hooks/use-checkins"
 
@@ -206,34 +207,11 @@ export function CheckinForm({ onComplete }: CheckinFormProps) {
         response: response.trim(),
       })
       setResult(checkinResult)
-    } catch {
-      // Simulate AI processing result for demo
-      setResult({
-        checkin: {
-          id: "chk_new",
-          userId: "current",
-          userName: "You",
-          userAvatarUrl: null,
-          userDepartment: null,
-          checkinDate: new Date().toISOString().split("T")[0],
-          submittedAt: new Date().toISOString(),
-          status: "ai_processed",
-          rawResponse: response,
-          aiSummary: `Processed check-in: ${response.slice(0, 100)}...`,
-          taskUpdates: [],
-          hoursLogged: null,
-          blockers: [],
-          confidenceScore: 0.85,
-          reviewedById: null,
-          reviewedByName: null,
-          reviewNotes: null,
-        },
-        summary: `Processed check-in: ${response.slice(0, 100)}...`,
-        taskUpdates: [],
-        hoursLogged: null,
-        blockers: [],
-        confidenceScore: 0.85,
-      })
+    } catch (err) {
+      // Surface real errors so users can see what went wrong
+      const message =
+        err instanceof Error ? err.message : "Failed to submit check-in"
+      toast.error(message)
     } finally {
       setIsProcessing(false)
     }

@@ -386,12 +386,22 @@ export function useAnalytics(dateRange: string = "30d") {
     queryKey: analyticsKeys.data(dateRange),
     queryFn: async () => {
       try {
-        const data = await fetchJSON<AnalyticsData>(
+        const data = await fetchJSON<Partial<AnalyticsData>>(
           `/api/analytics?range=${dateRange}`
         )
-        // Ensure all required keys exist even if API returns partial data
-        if (!data || !data.metrics) return getEmptyAnalytics()
-        return data
+        // Merge with empty defaults so missing keys don't crash consumers
+        const empty = getEmptyAnalytics()
+        return {
+          metrics: data?.metrics ?? empty.metrics,
+          pipelineDistribution:
+            data?.pipelineDistribution ?? empty.pipelineDistribution,
+          stageTime: data?.stageTime ?? empty.stageTime,
+          teamPerformance: data?.teamPerformance ?? empty.teamPerformance,
+          revenue: data?.revenue ?? empty.revenue,
+          tierComparison: data?.tierComparison ?? empty.tierComparison,
+          atRiskProjects: data?.atRiskProjects ?? empty.atRiskProjects,
+          clientEngagement: data?.clientEngagement ?? empty.clientEngagement,
+        }
       } catch {
         // No mock fallback — return safe empty structure
         return getEmptyAnalytics()

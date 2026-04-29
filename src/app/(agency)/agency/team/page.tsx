@@ -138,8 +138,11 @@ export default function TeamPage() {
 
     for (const [dept, members] of Array.from(grouped.entries())) {
       for (const m of members) {
+        const parts = (m.name ?? "").trim().split(/\s+/).filter(Boolean)
+        const first = parts[0] ?? "—"
+        const lastInitial = parts[1]?.[0] ? ` ${parts[1][0]}.` : ""
         result.push({
-          name: m.name.split(" ")[0] + " " + m.name.split(" ")[1]?.[0] + ".",
+          name: first + lastInitial,
           current: m.activeProjectCount,
           capacity: m.maxConcurrentProjects,
           department: dept,
